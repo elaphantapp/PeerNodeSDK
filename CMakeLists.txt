@@ -1,22 +1,36 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(Elastos.SDK.PeerNode)
+include(./config/cmake/CMakeLists.txt)
 
-# specify the C++ standard
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+project(PeerNodeSDK)
 
-file( GLOB SOURCES "*.cpp" )
+pkg_search_module(pkg-Elastos.SDK.Contact REQUIRED Elastos.SDK.Contact)
+message(STATUS "Elastos.SDK.Contact include path: ${pkg-Elastos.SDK.Contact_INCLUDE_DIRS}")
+message(STATUS "Elastos.SDK.Contact library path: ${pkg-Elastos.SDK.Contact_STATIC_LDFLAGS}")
 
-add_library(PeerNode SHARED ${SOURCES})
+include_directories("${CMAKE_INSTALL_PREFIX}/include")
 
-target_include_directories(PeerNode PUBLIC
-                          "${PROJECT_SOURCE_DIR}"
-                          "${PROJECT_SOURCE_DIR}/depends/include"
-                          "${PROJECT_SOURCE_DIR}/depends/include/Elastos.SDK.Contact"
-                          )
 
-find_library(LIBRARY Elastos.SDK.Contact HINTS ${PROJECT_SOURCE_DIR}/depends/lib)
+file( GLOB PeerNode-SOURCES "*.cpp" )
+file( GLOB PeerNode-HEADERS "*.h" )
 
+add_library(PeerNode)
+target_sources(PeerNode PRIVATE
+    ${PeerNode-SOURCES})
+target_include_directories(PeerNode PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${pkg-Elastos.SDK.Contact_INCLUDE_DIRS}")
 target_link_libraries(PeerNode PUBLIC
-                      ${LIBRARY})
+    "${pkg-Elastos.SDK.Contact_STATIC_LDFLAGS}")
+
+set_target_properties(PeerNode PROPERTIES PUBLIC_HEADER "${PeerNode-HEADERS}")
+install(TARGETS PeerNode
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        PUBLIC_HEADER DESTINATION include/PeerNodeSDK)
+
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/PeerNodeSDK.pc.in
+	${CMAKE_CURRENT_BINARY_DIR}/PeerNodeSDK.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/PeerNodeSDK.pc DESTINATION lib/pkgconfig)
+
