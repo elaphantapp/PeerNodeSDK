@@ -10,7 +10,6 @@ message(STATUS "Elastos.SDK.Contact library path: ${pkg-Elastos.SDK.Contact_STAT
 
 include_directories("${CMAKE_INSTALL_PREFIX}/include")
 
-
 file( GLOB PeerNode-SOURCES "*.cpp" )
 file( GLOB PeerNode-HEADERS "*.h" )
 
@@ -22,6 +21,10 @@ target_include_directories(PeerNode PRIVATE
     "${pkg-Elastos.SDK.Contact_INCLUDE_DIRS}")
 target_link_libraries(PeerNode PUBLIC
     "${pkg-Elastos.SDK.Contact_STATIC_LDFLAGS}")
+
+if(DEFINED CFG_WITH_TEST)
+    add_subdirectory(test)
+endif()
 
 set_target_properties(PeerNode PROPERTIES PUBLIC_HEADER "${PeerNode-HEADERS}")
 install(TARGETS PeerNode
