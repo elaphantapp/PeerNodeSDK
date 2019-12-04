@@ -7,12 +7,6 @@
 #include "PeerListener.h"
 #include "Contact.hpp"
 
-#ifdef WITH_CROSSPL
-using ContactBridge = crosspl::native::ContactBridge;
-using ContactListener = crosspl::native::ContactListener;
-using ElaphantContact = crosspl::native::ElaphantContact;
-#endif // WITH_CROSSPL
-
 namespace elastos {
 
 class PeerNode {
