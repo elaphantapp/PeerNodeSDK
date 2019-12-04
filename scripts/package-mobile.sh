@@ -17,5 +17,5 @@ build_extfunc()
 	"$BUILD_SH" $@;
 }
 export CFG_PROJECT_DIR="$PROJECT_DIR";
-export CFG_PROJECT_NAME="Elastos.SDK.Wallet.C";
+export CFG_PROJECT_NAME="PeerNodeSDK";
 source "$DEPENDS_DIR/scripts/package-mobile.sh" $@;

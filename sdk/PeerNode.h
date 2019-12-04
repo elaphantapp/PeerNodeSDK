@@ -7,11 +7,17 @@
 #include "PeerListener.h"
 #include "Contact.hpp"
 
+#ifdef WITH_CROSSPL
+using ContactBridge = crosspl::native::ContactBridge;
+using ContactListener = crosspl::native::ContactListener;
+using ElaphantContact = crosspl::native::ElaphantContact;
+#endif // WITH_CROSSPL
+
 namespace elastos {
 
 class PeerNode {
 private:
-    class ContactListener : public ElaphantContact::Listener {
+    class ContactListener : public ContactBridge::Listener {
     public:
         explicit ContactListener(PeerNode* node)
             : mNode(node)
@@ -25,7 +31,7 @@ private:
 
         virtual void onReceivedMessage(const std::string& humanCode,
                                        ContactChannel channelType,
-                                       std::shared_ptr<ElaphantContact::Message> msgInfo) override;
+                                       std::shared_ptr<ContactBridge::Message> msgInfo) override;
 
         virtual void onError(int errCode, const std::string& errStr,
                              const std::string& ext) override;
@@ -36,7 +42,7 @@ private:
         PeerNode* mNode;
     };
 
-    class ContactDataListener : public ElaphantContact::DataListener {
+    class ContactDataListener : public ContactBridge::DataListener {
     public:
         explicit ContactDataListener(PeerNode* node)
             : mNode(node)
@@ -100,8 +106,8 @@ public:
     int GetStatus();
     int GetFriendStatus(const std::string& friendCode);
 
-    std::shared_ptr<ElaphantContact::UserInfo> GetUserInfo();
-    std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ListFriendInfo();
+    std::shared_ptr<ContactBridge::UserInfo> GetUserInfo();
+    std::vector<std::shared_ptr<ContactBridge::FriendInfo>> ListFriendInfo();
 
     int SendMessage(const std::string& friendCode, const std::string& message);
 
@@ -127,7 +133,7 @@ private:
     std::mutex mMsgListenerMutex;
     std::mutex mDataListenerMutex;
 
-    std::shared_ptr<ElaphantContact> mContact;
+    std::shared_ptr<ContactBridge> mContact;
     std::shared_ptr<ContactListener> mContactListener;
     std::shared_ptr<ContactDataListener> mContactDataListener;
 };
