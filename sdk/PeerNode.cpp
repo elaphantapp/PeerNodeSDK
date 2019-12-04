@@ -197,7 +197,8 @@ void PeerNode::AddMessageListener(const std::string& serviceName, std::shared_pt
 {
     std::unique_lock<std::mutex> _lock(mMsgListenerMutex);
     std::string name = toLower(serviceName);
-    mMsgListenerMap[serviceName] = listener;
+    printf("PeerNode add message listener: %s\n", name.c_str());
+    mMsgListenerMap[name] = listener;
 }
 
 void PeerNode::RemoveMessageListener(const std::string& serviceName)

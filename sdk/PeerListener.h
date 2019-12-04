@@ -2,8 +2,6 @@
 #ifndef __ELASTOS_PEER_LISTENER_H__
 #define __ELASTOS_PEER_LISTENER_H__
 
-using CrossBase = crosspl::native::CrossBase;
-
 #include <memory>
 #include <string>
 #include "ContactListener.hpp"
