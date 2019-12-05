@@ -1,0 +1,73 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.elastos.carrier.myapplication.MainActivity">
+
+    <item android:id="@+id/get_started"
+        android:title="Get Started" />
+
+    <item android:enabled="false"
+        android:title="Log" />
+    <item android:id="@+id/clear_event"
+        android:title="   `- Clear Event" />
+
+    <item android:enabled="false"
+        android:title="Contact" />
+    <item android:id="@+id/new_and_start_contact"
+        android:title="   |- New and Start Contact" />
+    <item android:id="@+id/stop_and_del_contact"
+        android:title="   |- Stop and Del Contact" />
+    <item android:id="@+id/recreate_contact"
+        android:title="   |- Recreate Contact" />
+    <item android:id="@+id/restart_contact"
+        android:title="   `- Restart Contact" />
+
+    <item android:enabled="false"
+        android:title="User" />
+    <item android:id="@+id/get_user_info"
+        android:title="   |- Get User Info" />
+    <item android:id="@+id/set_user_identifycode"
+        android:title="   |- Set User IdentifyCode" />
+    <item android:id="@+id/set_user_details"
+        android:title="   |- Set User Details" />
+    <item android:id="@+id/set_wallet_address"
+        android:title="   |- Set Wallet Address" />
+    <item android:id="@+id/sync_upload"
+        android:title="   |- Sync Upload" />
+    <item android:id="@+id/sync_download"
+        android:title="   `- Sync Download" />
+
+    <item android:enabled="false"
+        android:title="Friend" />
+    <item android:id="@+id/friend_info"
+        android:title="   |- Friend Info" />
+    <item android:id="@+id/add_friend"
+        android:title="   |- Add Friend" />
+    <item android:id="@+id/del_friend"
+        android:title="   |- Del Friend" />
+    <item android:id="@+id/set_friend_details"
+        android:title="   |- Set Friend Details" />
+    <item android:id="@+id/send_text_message"
+        android:title="   |- Send Text Message" />
+    <item android:id="@+id/send_binary_message"
+        android:title="   |- Send Binary Message" />
+    <item android:id="@+id/send_file_message"
+        android:title="   |- Send File Message" />
+    <item android:id="@+id/pull_file"
+        android:title="   |- Pull File" />
+    <item android:id="@+id/cancel_pull_file"
+        android:title="   `- Cancel Pull File" />
+
+    <item android:enabled="false"
+        android:title="Debug" />
+    <item android:id="@+id/show_cached_didprop"
+        android:title="   `- Show Cached DidProp" />
+
+    <item android:enabled="false"
+        android:title="Mnemonic" />
+    <item android:id="@+id/new_mnemonic"
+        android:title="   |- New And Save Mnemonic" />
+    <item android:id="@+id/import_mnemonic"
+        android:title="   `- Import Mnemonic" />
+
+
+</menu>

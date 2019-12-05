@@ -42,6 +42,6 @@ build_extfunc_depends()
 
 export CFG_PROJECT_NAME="PeerNodeSDK";
 export CFG_PROJECT_DIR="$PROJECT_DIR";
-export CFG_CMAKELIST_DIR="$PROJECT_DIR";
+export CFG_CMAKELIST_DIR="$PROJECT_DIR/sdk";
 source "$DEPENDS_DIR/scripts/build.sh" $@ --force-build;
 
