@@ -37,3 +37,5 @@ configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/PeerNodeSDK.pc.in
 	${CMAKE_CURRENT_BINARY_DIR}/PeerNodeSDK.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/PeerNodeSDK.pc DESTINATION lib/pkgconfig)
 
+
+add_subdirectory(plugins)
