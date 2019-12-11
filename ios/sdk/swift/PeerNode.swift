@@ -72,7 +72,7 @@ open class PeerNode {
           }
         }
 
-        override func onReceivedMessage(humanCode: String, channelType: Int, message: Contact.Message) {
+        override func onReceivedMessage(humanCode: String, channelType: Contact.Channel, message: Contact.Message) {
           var msg = "onRcvdMsg(): data=\(message.data.toString())\n"
           msg += "onRcvdMsg(): type=\(message.type)\n"
           msg += "onRcvdMsg(): crypto=" + (message.cryptoAlgorithm ?? "nil") + "\n"
@@ -86,7 +86,7 @@ open class PeerNode {
               }
               
               for listener in listeners! {
-                listener.onReceivedMessage(humanCode: humanCode, channelType: ContactChannel(rawValue: channelType)!, message: message)
+                listener.onReceivedMessage(humanCode: humanCode, channelType: channelType, message: message)
               }
             }
           }
@@ -116,18 +116,18 @@ open class PeerNode {
           super.init()
         }
 
-        override func onNotify(humanCode: String, channelType: ContactChannel, dataId: String,
+        override func onNotify(humanCode: String, channelType: Contact.Channel, dataId: String,
                                status: Status) {
           let msg = "onNotify(): dataId=\(dataId), status=\(status)\n";
           print("\(msg)")
         }
 
-        override func onReadData(humanCode: String, channelType: ContactChannel, dataId: String,
+        override func onReadData(humanCode: String, channelType: Contact.Channel, dataId: String,
                                  offset: Int64, data: inout Data?) -> Int {
           return 0
         }
 
-        override func onWriteData(humanCode: String, channelType: ContactChannel, dataId: String,
+        override func onWriteData(humanCode: String, channelType: Contact.Channel, dataId: String,
                                   offset: Int64, data: Data?) -> Int {
           return 0
         }
@@ -244,14 +244,14 @@ open class PeerNode {
     return mContact.stop()
   }
   
-  public func setUserInfo(item: HumanInfo.Item, value: String) -> Int {
+  public func setUserInfo(item: Contact.UserInfo.Item, value: String) -> Int {
     return mContact.setUserInfo(item: item, value: value)
   }
   public func getUserInfo() -> Contact.UserInfo? {
     return mContact.getUserInfo()
   }
   
-  public func setIdentifyCode(type: ContactSDK.IdentifyCode.Kind, value: String) -> Int {
+  public func setIdentifyCode(type: Contact.UserInfo.Kind, value: String) -> Int {
     return mContact.setIdentifyCode(type: type, value: value)
   }
   
@@ -267,7 +267,7 @@ open class PeerNode {
     return mContact.acceptFriend(friendCode: friendCode)
   }
   
-  public func setFriendInfo(friendCode: String, item: HumanInfo.Item, value: String) -> Int {
+  public func setFriendInfo(friendCode: String, item: Contact.HumanInfo.Item, value: String) -> Int {
     return mContact.setHumanInfo(humanCode: friendCode, item: item, value: value);
   }
   
@@ -279,29 +279,29 @@ open class PeerNode {
     return mContact.listFriendCode()
   }
   
-  public func getStatus() -> ContactStatus? {
+  public func getStatus() -> Contact.Status? {
     return mContact.getStatus(humanCode: "-user-info-")
   }
   
-  public func getFriendStatus(friendCode: String) -> ContactStatus? {
+  public func getFriendStatus(friendCode: String) -> Contact.Status? {
     return mContact.getStatus(humanCode: friendCode)
   }
   
   public func sendMessage(friendCode: String, message: Contact.Message) -> Int {
     return mContact.sendMessage(friendCode: friendCode,
-                                 channelType: ContactChannel.Carrier,
-                                 message: message)
+                                channelType: Contact.Channel.Carrier,
+                                message: message)
   }
   
   public func pullFileAsync(friendCode: String, fileInfo: Contact.Message.FileData) -> Int {
     return mContact.pullFileAsync(friendCode: friendCode,
-                                  channelType: ContactChannel.Carrier,
+                                  channelType: Contact.Channel.Carrier,
                                   fileInfo: fileInfo)
   }
   
   public func cancelPullFile(friendCode: String, fileInfo: Contact.Message.FileData) -> Int {
     return mContact.cancelPullFile(friendCode: friendCode,
-                                   channelType: ContactChannel.Carrier,
+                                   channelType: Contact.Channel.Carrier,
                                    fileInfo: fileInfo)
   }
   

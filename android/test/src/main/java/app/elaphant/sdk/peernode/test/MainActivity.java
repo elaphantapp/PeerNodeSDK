@@ -28,9 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
-import org.elastos.sdk.elephantwallet.contact.internal.ContactChannel;
-import org.elastos.sdk.elephantwallet.contact.internal.ContactListener;
-import org.elastos.sdk.elephantwallet.contact.internal.Utils;
+import org.elastos.sdk.elephantwallet.contact.Utils;
 import org.elastos.sdk.keypair.ElastosKeypair;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,7 +81,7 @@ public class MainActivity extends Activity {
 
         mPeerNode.setListener(new PeerNodeListener.Listener() {
             @Override
-            public byte[] onAcquire(ContactListener.AcquireArgs request) {
+            public byte[] onAcquire(Contact.Listener.AcquireArgs request) {
                 byte[] response = null;
                 switch (request.type) {
                     case PublicKey:
@@ -174,12 +172,12 @@ public class MainActivity extends Activity {
         mConnector = new Connector("Test");
         mConnector.setMessageListener(new PeerNodeListener.MessageListener() {
             @Override
-            public void onEvent(ContactListener.EventArgs event) {
+            public void onEvent(Contact.Listener.EventArgs event) {
                 showEvent(event);
             }
 
             @Override
-            public void onReceivedMessage(String humanCode, ContactChannel channelType, Contact.Message message) {
+            public void onReceivedMessage(String humanCode, Contact.Channel channelType, Contact.Message message) {
                 showMessage(humanCode, message);
             }
         });
@@ -242,7 +240,7 @@ public class MainActivity extends Activity {
         builder.create().show();
     }
 
-    private void showEvent(ContactListener.EventArgs event) {
+    private void showEvent(Contact.Listener.EventArgs event) {
         String text = "";
         switch (event.type) {
             case FriendRequest:

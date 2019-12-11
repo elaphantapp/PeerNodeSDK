@@ -11,7 +11,7 @@ import ContactSDK
 
 open class PeerNodeListener {
   public class Listener {
-    open func onAcquire(request: AcquireArgs) -> Data? {
+    open func onAcquire(request: Contact.Listener.AcquireArgs) -> Data? {
       fatalError("\(#function) not implementation.")
     }
     
@@ -24,22 +24,22 @@ open class PeerNodeListener {
     open func onEvent(event: Contact.Listener.EventArgs) {
       fatalError("\(#function) not implementation.")
     }
-    open func onReceivedMessage(humanCode: String, channelType: ContactChannel,
+    open func onReceivedMessage(humanCode: String, channelType: Contact.Channel,
                                 message: Contact.Message) {
       fatalError("\(#function) not implementation.")
     }
   }
   
   public class DataListener {
-    open func onNotify(humanCode: String, channelType: ContactChannel, dataId: String,
+    open func onNotify(humanCode: String, channelType: Contact.Channel, dataId: String,
                        status: Contact.DataListener.Status) {
       fatalError("\(#function) not implementation.")
     }
-    open func onReadData(humanCode: String, channelType: ContactChannel, dataId: String,
+    open func onReadData(humanCode: String, channelType: Contact.Channel, dataId: String,
                          offset: Int64, data: inout Data?) -> Int {
       fatalError("\(#function) not implementation.")
     }
-    open func onWriteData(humanCode: String, channelType: ContactChannel, dataId: String,
+    open func onWriteData(humanCode: String, channelType: Contact.Channel, dataId: String,
                           offset: Int64, data: Data?) -> Int {
       fatalError("\(#function) not implementation.")
     }

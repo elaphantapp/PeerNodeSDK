@@ -3,10 +3,6 @@ package app.elaphant.sdk.peernode;
 import android.util.Log;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
-import org.elastos.sdk.elephantwallet.contact.internal.ContactChannel;
-import org.elastos.sdk.elephantwallet.contact.internal.ContactStatus;
-import org.elastos.sdk.elephantwallet.contact.internal.HumanInfo;
-import org.elastos.sdk.elephantwallet.contact.internal.IdentifyCode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,7 +61,7 @@ public final class PeerNode {
             }
 
             @Override
-            public void onReceivedMessage(String humanCode, ContactChannel channelType, Contact.Message message) {
+            public void onReceivedMessage(String humanCode, Contact.Channel channelType, Contact.Message message) {
                 String msg = "onRcvdMsg(): data=" + message.data + "\n";
                 msg += "onRcvdMsg(): type=" + message.type + "\n";
                 msg += "onRcvdMsg(): crypto=" + message.cryptoAlgorithm + "\n";
@@ -96,20 +92,20 @@ public final class PeerNode {
 
         Contact.DataListener contactDataListener = new Contact.DataListener() {
             @Override
-            public void onNotify(String humanCode, ContactChannel channelType,
+            public void onNotify(String humanCode, Contact.Channel channelType,
                                  String dataId, Status status) {
                 String msg = "onNotify(): dataId=" + dataId + ", status=" + status + "\n";
                 Log.d(TAG, msg);
             }
 
             @Override
-            public int onReadData(String humanCode, ContactChannel channelType,
+            public int onReadData(String humanCode, Contact.Channel channelType,
                                   String dataId, long offset, ByteBuffer data) {
                 return 0;
             }
 
             @Override
-            public int onWriteData(String humanCode, ContactChannel channelType,
+            public int onWriteData(String humanCode, Contact.Channel channelType,
                                    String dataId, long offset, byte[] data) {
                 return 0;
             }
@@ -216,7 +212,7 @@ public final class PeerNode {
         return mContact.stop();
     }
 
-    public int setUserInfo(HumanInfo.Item item, String value) {
+    public int setUserInfo(Contact.HumanInfo.Item item, String value) {
         return mContact.setUserInfo(item, value);
     }
 
@@ -224,7 +220,7 @@ public final class PeerNode {
         return mContact.getUserInfo();
     }
 
-    public int setIdentifyCode(IdentifyCode.Type type, String value) {
+    public int setIdentifyCode(Contact.UserInfo.Type type, String value) {
         return mContact.setIdentifyCode(type, value);
     }
 
@@ -240,7 +236,7 @@ public final class PeerNode {
         return mContact.acceptFriend(friendCode);
     }
 
-    public int setFriendInfo(String humanCode, HumanInfo.Item item, String value) {
+    public int setFriendInfo(String humanCode, Contact.HumanInfo.Item item, String value) {
         return mContact.setHumanInfo(humanCode, item, value);
     }
 
@@ -252,25 +248,25 @@ public final class PeerNode {
         return mContact.listFriendCode();
     }
 
-    public ContactStatus getStatus() {
+    public Contact.Status getStatus() {
         Contact.UserInfo userInfo = getUserInfo();
         return mContact.getStatus(userInfo.humanCode);
     }
 
-    public ContactStatus getFriendStatus(String friendCode) {
+    public Contact.Status getFriendStatus(String friendCode) {
         return mContact.getStatus(friendCode);
     }
 
     public int sendMessage(String friendCode, Contact.Message message) {
-        return mContact.sendMessage(friendCode, ContactChannel.Carrier, message);
+        return mContact.sendMessage(friendCode, Contact.Channel.Carrier, message);
     }
 
     public int pullFileAsync(String friendCode, Contact.Message.FileData fileInfo) {
-        return mContact.pullFileAsync(friendCode, ContactChannel.Carrier, fileInfo);
+        return mContact.pullFileAsync(friendCode, Contact.Channel.Carrier, fileInfo);
     }
 
     public int cancelPullFile(String friendCode, Contact.Message.FileData fileInfo) {
-        return mContact.cancelPullFile(friendCode, ContactChannel.Carrier, fileInfo);
+        return mContact.cancelPullFile(friendCode, Contact.Channel.Carrier, fileInfo);
     }
 
     public int setWalletAddress(String name, String value) {

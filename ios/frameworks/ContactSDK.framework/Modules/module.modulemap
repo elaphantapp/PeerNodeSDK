@@ -1,4 +1,0 @@
-framework module ContactSDK {
-  header "ContactSDK-Swift.h"
-  requires objc
-}

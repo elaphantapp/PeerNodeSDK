@@ -77,7 +77,7 @@ open class Connector {
     return mPeerNode?.acceptFriend(friendCode: friendCode) ?? -1
   }
   
-  public func setFriendInfo(friendCode: String, item: HumanInfo.Item, value: String) -> Int {
+  public func setFriendInfo(friendCode: String, item: Contact.HumanInfo.Item, value: String) -> Int {
     return mPeerNode?.setFriendInfo(friendCode: friendCode, item: item, value: value) ?? -1
   }
   
@@ -89,12 +89,12 @@ open class Connector {
     return mPeerNode?.listFriendCode() ?? [String]()
   }
   
-  public func getStatus() -> ContactStatus {
-    return mPeerNode?.getStatus() ?? ContactStatus.Invalid
+  public func getStatus() -> Contact.Status {
+    return mPeerNode?.getStatus() ?? Contact.Status.Invalid
   }
   
-  public func getFriendStatus(friendCode: String) -> ContactStatus {
-    return mPeerNode?.getFriendStatus(friendCode: friendCode) ?? ContactStatus.Invalid
+  public func getFriendStatus(friendCode: String) -> Contact.Status {
+    return mPeerNode?.getFriendStatus(friendCode: friendCode) ?? Contact.Status.Invalid
   }
   
   public func sendMessage(friendCode: String, message: Contact.Message) -> Int {

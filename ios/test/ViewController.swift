@@ -15,8 +15,7 @@ class ViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    let peerNode = PeerNode("test")
-    let listerner = PeerNode.ContactListener(peerNode)
+    let peerNode = PeerNode.GetInstance(path: "test", deviceId: getDeviceId())
     
     // Do any additional setup after loading the view.
     
@@ -39,6 +38,11 @@ class ViewController: UIViewController {
 //    showMessage("Mnemonic:\(mSavedMnemonic ?? "nil")\n")
   }
 
+  private func getDeviceId() -> String {
+    let devId = UIDevice.current.identifierForVendor?.uuidString
+    return devId!
+  }
+  
   @IBAction func onOptionsMenuTapped(_ sender: Any) {
     optionsMenu.isHidden = !optionsMenu.isHidden
   }

@@ -1,8 +1,6 @@
 package app.elaphant.sdk.peernode;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
-import org.elastos.sdk.elephantwallet.contact.internal.ContactStatus;
-import org.elastos.sdk.elephantwallet.contact.internal.HumanInfo;
 
 import java.util.List;
 
@@ -71,7 +69,7 @@ public final class Connector {
         return mPeerNode.acceptFriend(friendCode);
     }
 
-    public int setFriendInfo(String humanCode, HumanInfo.Item item, String value) {
+    public int setFriendInfo(String humanCode, Contact.HumanInfo.Item item, String value) {
         if (mPeerNode == null) return -1;
         return mPeerNode.setFriendInfo(humanCode, item, value);
     }
@@ -86,13 +84,13 @@ public final class Connector {
         return mPeerNode.listFriendCode();
     }
 
-    public ContactStatus getStatus() {
-        if (mPeerNode == null) return ContactStatus.Invalid;
+    public Contact.Status getStatus() {
+        if (mPeerNode == null) return Contact.Status.Invalid;
         return mPeerNode.getStatus();
     }
 
-    public ContactStatus getFriendStatus(String friendCode) {
-        if (mPeerNode == null) return ContactStatus.Invalid;
+    public Contact.Status getFriendStatus(String friendCode) {
+        if (mPeerNode == null) return Contact.Status.Invalid;
         return mPeerNode.getFriendStatus(friendCode);
     }
 
