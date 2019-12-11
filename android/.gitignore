@@ -67,7 +67,7 @@ fastlane/readme.md
 .idea/
 .DS_Store
 
-lib/libs/Elastos.SDK.Wallet.C.aar
+sdk/libs
 
 .classpath
 .project
