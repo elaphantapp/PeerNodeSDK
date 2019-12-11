@@ -1,4 +1,0 @@
-framework module CrossPL {
-  header "CrossPL-Swift.h"
-  requires objc
-}

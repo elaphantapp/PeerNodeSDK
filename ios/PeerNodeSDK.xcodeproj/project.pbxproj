@@ -183,6 +183,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = DE27576D23334805001B635B /* Build configuration list for PBXNativeTarget "sdk" */;
 			buildPhases = (
+				DE271CC023A10E9200F531A3 /* ShellScript */,
 				DE27576323334804001B635B /* Headers */,
 				DE27576423334804001B635B /* Sources */,
 				DE27576523334804001B635B /* Frameworks */,
@@ -274,6 +275,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		DE271CC023A10E9200F531A3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./frameworks/ensure-depends.sh\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		DE27576423334804001B635B /* Sources */ = {
