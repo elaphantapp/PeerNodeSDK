@@ -220,32 +220,12 @@ SWIFT_CLASS("_TtC10ContactSDK19ContactDataListener")
 @end
 
 
-SWIFT_CLASS("_TtC10ContactSDK12ContactDebug")
-@interface ContactDebug : CrossBase
-@end
-
-
-SWIFT_CLASS("_TtC10ContactSDK14ContactFactory")
-@interface ContactFactory : CrossBase
-@end
-
-
 SWIFT_CLASS("_TtC10ContactSDK15ContactListener")
 @interface ContactListener : CrossBase
 - (NSData * _Nullable)onAcquire:(NSInteger)reqType :(NSString * _Nullable)pubKey :(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
 - (void)onEvent:(NSInteger)eventType :(NSString * _Nonnull)humanCode :(NSInteger)channelType :(NSData * _Nonnull)data;
 - (void)onReceivedMessage:(NSString * _Nonnull)humanCode :(NSInteger)channelType :(NSInteger)type :(NSData * _Nonnull)data :(NSString * _Nonnull)cryptoAlgorithm :(int64_t)timestamp;
 - (void)onError:(int32_t)errCode :(NSString * _Nonnull)errStr :(NSString * _Nullable)ext;
-@end
-
-
-SWIFT_CLASS("_TtC10ContactSDK14ContactMessage")
-@interface ContactMessage : CrossBase
-@end
-
-
-SWIFT_CLASS("_TtC10ContactSDK14KeypairWrapper")
-@interface KeypairWrapper : CrossBase
 @end
 
 #if __has_attribute(external_source_symbol)
