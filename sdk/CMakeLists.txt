@@ -22,6 +22,8 @@ target_include_directories(PeerNode PRIVATE
 target_link_libraries(PeerNode PUBLIC
     "${pkg-Elastos.SDK.Contact_STATIC_LDFLAGS}")
 
+add_subdirectory(Launcher)
+
 if(DEFINED CFG_WITH_TEST)
     add_subdirectory(test)
 endif()
