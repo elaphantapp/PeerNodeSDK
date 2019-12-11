@@ -15,7 +15,8 @@ class ViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    let listerner = PeerNode.ContactListener()
+    let peerNode = PeerNode("test")
+    let listerner = PeerNode.ContactListener(peerNode)
     
     // Do any additional setup after loading the view.
     
