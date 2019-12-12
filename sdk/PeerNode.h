@@ -30,7 +30,7 @@ private:
         virtual void onError(int errCode, const std::string& errStr,
                              const std::string& ext) override;
     private:
-        std::shared_ptr<PeerListener::MessageListener> FindListener(const std::string& content);
+        std::vector<std::shared_ptr<PeerListener::MessageListener>> FindListener(const std::string& content);
 
     private:
         PeerNode* mNode;
@@ -71,10 +71,10 @@ public:
     void SetListener(std::shared_ptr<PeerListener::Listener>& listener);
 
     void AddMessageListener(const std::string& serviceName, std::shared_ptr<PeerListener::MessageListener>& listener);
-    void RemoveMessageListener(const std::string& serviceName);
+    void RemoveMessageListener(const std::string& serviceName, std::shared_ptr<PeerListener::MessageListener>& listener);
 
     void AddDataListener(const std::string& serviceName, std::shared_ptr<PeerListener::DataListener>& listener);
-    void RemoveDataListener(const std::string& serviceName);
+    void RemoveDataListener(const std::string& serviceName, std::shared_ptr<PeerListener::DataListener>& listener);
 
 
     int Start();
@@ -120,8 +120,8 @@ private:
     static std::shared_ptr<PeerNode> sInstance;
 
     std::shared_ptr<PeerListener::Listener> mListener;
-    std::map<std::string, std::shared_ptr<PeerListener::MessageListener>> mMsgListenerMap;
-    std::map<std::string, std::shared_ptr<PeerListener::DataListener>> mDataListenerMap;
+    std::map<std::string, std::vector<std::shared_ptr<PeerListener::MessageListener>>> mMsgListenerMap;
+    std::map<std::string, std::vector<std::shared_ptr<PeerListener::DataListener>>> mDataListenerMap;
 
     std::mutex mListenerMutex;
     std::mutex mMsgListenerMutex;

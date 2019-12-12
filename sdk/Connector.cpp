@@ -11,10 +11,8 @@ Connector::Connector(const std::string& serviceName)
 
 Connector::~Connector()
 {
-    if (mPeerNode.get() != nullptr) {
-        mPeerNode->RemoveMessageListener(mServiceName);
-        mPeerNode->RemoveDataListener(mServiceName);
-    }
+    RemoveMessageListener();
+    RemoveDataListener();
 }
 
 void Connector::SetMessageListener(std::shared_ptr<PeerListener::MessageListener>& listener)
@@ -24,7 +22,9 @@ void Connector::SetMessageListener(std::shared_ptr<PeerListener::MessageListener
         return;
     }
 
+    RemoveMessageListener();
     mPeerNode->AddMessageListener(mServiceName, listener);
+    mMessageListener = listener;
 }
 
 void Connector::SetDataListener(std::shared_ptr<PeerListener::DataListener>& listener)
@@ -34,7 +34,23 @@ void Connector::SetDataListener(std::shared_ptr<PeerListener::DataListener>& lis
         return;
     }
 
+    RemoveDataListener();
     mPeerNode->AddDataListener(mServiceName, listener);
+    mDataListener = listener;
+}
+
+void Connector::RemoveMessageListener()
+{
+    if (mPeerNode.get() == nullptr || mMessageListener.get() == nullptr) return;
+    mPeerNode->RemoveMessageListener(mServiceName, mMessageListener);
+    mMessageListener.reset();
+}
+
+void Connector::RemoveDataListener()
+{
+    if (mPeerNode.get() == nullptr || mDataListener.get() == nullptr) return;
+    mPeerNode->RemoveDataListener(mServiceName, mDataListener);
+    mDataListener.reset();
 }
 
 int Connector::AddFriend(const std::string& friendCode, const std::string& summary)

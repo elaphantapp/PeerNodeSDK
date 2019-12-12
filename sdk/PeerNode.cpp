@@ -38,8 +38,9 @@ void PeerNode::ContactListener::onEvent(ContactListener::EventArgs& event)
     case ElaphantContact::Listener::EventType::FriendRequest:
     {
         auto requestEvent = dynamic_cast<ElaphantContact::Listener::RequestEvent*>(&event);
-        std::shared_ptr<PeerListener::MessageListener> listener = FindListener(requestEvent->summary);
-        if (listener.get() != nullptr) {
+        auto listeners = FindListener(requestEvent->summary);
+        if (listeners.size() == 0) return;
+        for (auto const& listener : listeners) {
             listener->onEvent(event);
         }
         break;
@@ -47,8 +48,10 @@ void PeerNode::ContactListener::onEvent(ContactListener::EventArgs& event)
     default:
     {
         std::unique_lock<std::mutex> _lock(mNode->mMsgListenerMutex);
-        for (auto const& listener : mNode->mMsgListenerMap) {
-            listener.second->onEvent(event);
+        for (auto const& listeners : mNode->mMsgListenerMap) {
+            for (auto const& listener : listeners.second) {
+                listener->onEvent(event);
+            }
         }
         break;
     }
@@ -62,10 +65,12 @@ void PeerNode::ContactListener::onReceivedMessage(const std::string& humanCode,
                         std::shared_ptr<ElaphantContact::Message> msgInfo)
 {
     if (msgInfo->type == ElaphantContact::Message::Type::MsgText) {
-        std::shared_ptr<PeerListener::MessageListener> listener = FindListener(msgInfo->data->toString());
-        if (listener.get() != nullptr) {
+        auto listeners = FindListener(msgInfo->data->toString());
+        if (listeners.size() == 0) return;
+        for (auto const& listener : listeners) {
             listener->onReceivedMessage(humanCode, channelType, msgInfo);
         }
+
     }
 }
 
@@ -84,26 +89,28 @@ void PeerNode::ContactListener::onError(int errCode, const std::string& errStr, 
     return listener->onError(errCode, errStr, ext);
 }
 
-std::shared_ptr<PeerListener::MessageListener> PeerNode::ContactListener::FindListener(const std::string& content)
+std::vector<std::shared_ptr<PeerListener::MessageListener>> PeerNode::ContactListener::FindListener(const std::string& content)
 {
     std::unique_lock<std::mutex> _lock(mNode->mMsgListenerMutex);
+
     try {
         Json json = Json::parse(content);
         std::string name = toLower(json["serviceName"]);
-        auto listener = mNode->mMsgListenerMap.find(name);
-        if (listener != mNode->mMsgListenerMap.end()) {
-            return listener->second;
+        auto listeners = mNode->mMsgListenerMap.find(name);
+
+        if (listeners != mNode->mMsgListenerMap.end()) {
+            return listeners->second;
         }
     } catch (const std::exception& e) {
         printf("parse json failed\n");
     }
 
-    auto im = mNode->mMsgListenerMap.find("elaphantchat");
-    if (im != mNode->mMsgListenerMap.end()) {
-        return im->second;
+    auto ims = mNode->mMsgListenerMap.find("elaphantchat");
+    if (ims != mNode->mMsgListenerMap.end()) {
+        return ims->second;
     }
 
-    return nullptr;
+    return std::vector<std::shared_ptr<PeerListener::MessageListener>>();
 }
 
 /*************************** PeerNode::ContactDataListener ***************************/
@@ -197,29 +204,76 @@ void PeerNode::AddMessageListener(const std::string& serviceName, std::shared_pt
 {
     std::unique_lock<std::mutex> _lock(mMsgListenerMutex);
     std::string name = toLower(serviceName);
-    printf("PeerNode add message listener: %s\n", name.c_str());
-    mMsgListenerMap[name] = listener;
+
+    auto search = mMsgListenerMap.find(name);
+    if (search != mMsgListenerMap.end()) {
+        mMsgListenerMap[name].push_back(listener);
+    }
+    else {
+        std::vector<std::shared_ptr<PeerListener::MessageListener>> v;
+        v.push_back(listener);
+        mMsgListenerMap[name] = v;
+    }
 }
 
-void PeerNode::RemoveMessageListener(const std::string& serviceName)
+void PeerNode::RemoveMessageListener(const std::string& serviceName, std::shared_ptr<PeerListener::MessageListener>& listener)
 {
     std::unique_lock<std::mutex> _lock(mMsgListenerMutex);
     std::string name = toLower(serviceName);
-    mMsgListenerMap.erase(name);
+
+    auto search = mMsgListenerMap.find(name);
+    if (search == mMsgListenerMap.end()) return;
+
+    std::vector<std::shared_ptr<PeerListener::MessageListener>>& v = mMsgListenerMap[name];
+
+    for (auto it = v.begin(); it != v.end(); it++) {
+        if (*it == listener) {
+            v.erase(it);
+            break;
+        }
+    }
+
+    if (v.size() == 0) {
+        mMsgListenerMap.erase(name);
+    }
 }
 
 void PeerNode::AddDataListener(const std::string& serviceName, std::shared_ptr<PeerListener::DataListener>& listener)
 {
     std::unique_lock<std::mutex> _lock(mDataListenerMutex);
     std::string name = toLower(serviceName);
-    mDataListenerMap[serviceName] = listener;
+
+    auto search = mDataListenerMap.find(name);
+    if (search != mDataListenerMap.end()) {
+        mDataListenerMap[name].push_back(listener);
+    }
+    else {
+        std::vector<std::shared_ptr<PeerListener::DataListener>> v;
+        v.push_back(listener);
+        mDataListenerMap[name] = v;
+    }
 }
 
-void PeerNode::RemoveDataListener(const std::string& serviceName)
+void PeerNode::RemoveDataListener(const std::string& serviceName, std::shared_ptr<PeerListener::DataListener>& listener)
 {
     std::unique_lock<std::mutex> _lock(mDataListenerMutex);
     std::string name = toLower(serviceName);
-    mDataListenerMap.erase(name);
+
+    auto search = mDataListenerMap.find(name);
+    if (search == mDataListenerMap.end()) return;
+
+    std::vector<std::shared_ptr<PeerListener::DataListener>>& v = mDataListenerMap[name];
+
+    for (auto it = v.begin(); it != v.end(); it++) {
+        if (*it == listener) {
+            v.erase(it);
+            break;
+        }
+    }
+
+    if (v.size() == 0) {
+        mDataListenerMap.erase(name);
+    }
 }
 
 int PeerNode::Start()
