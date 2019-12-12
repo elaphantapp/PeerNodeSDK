@@ -38,7 +38,7 @@ void PeerNode::ContactListener::onEvent(ContactListener::EventArgs& event)
     case ElaphantContact::Listener::EventType::FriendRequest:
     {
         auto requestEvent = dynamic_cast<ElaphantContact::Listener::RequestEvent*>(&event);
-        std::vector<std::shared_ptr<PeerListener::MessageListener>> listeners = FindListener(requestEvent->summary);
+        auto listeners = FindListener(requestEvent->summary);
         if (listeners.size() == 0) return;
         for (auto const& listener : listeners) {
             listener->onEvent(event);
@@ -65,7 +65,7 @@ void PeerNode::ContactListener::onReceivedMessage(const std::string& humanCode,
                         std::shared_ptr<ElaphantContact::Message> msgInfo)
 {
     if (msgInfo->type == ElaphantContact::Message::Type::MsgText) {
-        std::vector<std::shared_ptr<PeerListener::MessageListener>> listeners = FindListener(msgInfo->data->toString());
+        auto listeners = FindListener(msgInfo->data->toString());
         if (listeners.size() == 0) return;
         for (auto const& listener : listeners) {
             listener->onReceivedMessage(humanCode, channelType, msgInfo);
