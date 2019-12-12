@@ -36,9 +36,15 @@ public:
     int SendMessage(const std::string& friendCode, const std::string& message);
 
 private:
+    void RemoveMessageListener();
+    void RemoveDataListener();
+
+private:
     std::string mServiceName;
 
     std::shared_ptr<PeerNode> mPeerNode;
+    std::shared_ptr<PeerListener::MessageListener> mMessageListener;
+    std::shared_ptr<PeerListener::DataListener> mDataListener;
 };
 
 }

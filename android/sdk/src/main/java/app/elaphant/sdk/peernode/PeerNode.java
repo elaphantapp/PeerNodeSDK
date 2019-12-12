@@ -249,8 +249,7 @@ public final class PeerNode {
     }
 
     public Contact.Status getStatus() {
-        Contact.UserInfo userInfo = getUserInfo();
-        return mContact.getStatus(userInfo.humanCode);
+        return mContact.getStatus("-user-info-");
     }
 
     public Contact.Status getFriendStatus(String friendCode) {

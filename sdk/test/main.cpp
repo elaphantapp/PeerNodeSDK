@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <thread>
 #include <chrono>
+#include <regex>
 #include "PeerNode.h"
 #include "ConnectorTest.h"
 #include "Elastos.Wallet.Utility.h"
@@ -11,6 +12,8 @@
 const char* c_help = \
     "s  start     create and start peer node.\n" \
     "c  conn      test connector.\n" \
+    "f  friends   get friend list.\n"\
+    "m  message   send message to friend. m [friendCode] [text].\n"\
     "t  thread    test connector in multi thread.\n" \
     "h  help      show help message.\n" \
     "e  exit      exit the test program.\n" \
@@ -23,10 +26,11 @@ const std::string testPublicKey = "0220f01b9a715acf02b3d45be2a29138be8f2f8c328da
 void createAndStartPeerNode();
 void createConnector();
 void multiConnector();
+void listFriends();
+void sendMessage(const std::string& friendCode, const std::string& message);
 
-std::shared_ptr<elastos::PeerNode> gPeerNode;
-std::shared_ptr<ConnectorTest> gConnector;
-std::vector<std::shared_ptr<ConnectorTest>> gConnectorVector;
+std::shared_ptr<elastos::PeerNode> gPeerNode = nullptr;
+std::shared_ptr<ConnectorTest> gConnector = nullptr;
 std::vector<std::string> gServiceNameVector = {
     "ThreadTest1",
     "ThreadTest2",
@@ -34,6 +38,7 @@ std::vector<std::string> gServiceNameVector = {
     "ThreadTest4",
     "ThreadTest5"
 };
+std::shared_ptr<ConnectorTest>* gConnectorVector = new std::shared_ptr<ConnectorTest>[gServiceNameVector.size()];
 
 int main(int argc, char* argv[])
 {
@@ -60,7 +65,22 @@ int main(int argc, char* argv[])
         else if (!cmdLine.compare("t") || !cmdLine.compare("thread")) {
             multiConnector();
         }
+        else if (!cmdLine.compare("f") || !cmdLine.compare("friends")) {
+            listFriends();
+        }
+        else {
+            std::regex ws_re("\\s+");
+            std::vector<std::string> v(std::sregex_token_iterator(cmdLine.begin(), cmdLine.end(), ws_re, -1),
+                    std::sregex_token_iterator());
+            std::string cmd = v[0];
+            if (!cmd.compare("m") || !cmd.compare("message")) {
+                if (v.size() < 3) continue;
+                sendMessage(v[1], v[2]);
+            }
+        }
     }
+
+    delete[] gConnectorVector;
 
     return 0;
 }
@@ -131,34 +151,53 @@ void createAndStartPeerNode() {
 
 void createConnector()
 {
-    gConnector = std::make_shared<ConnectorTest>("Test");
-
-    std::stringstream ss;
-    gConnector->mConnector->GetFriendList(&ss);
-    printf("Test friend list: %s\n", ss.str().c_str());
+    if (gConnector == nullptr) {
+        gConnector = std::make_shared<ConnectorTest>("Test");
+        printf("connector Test created!\n");
+    } else {
+        printf("connector exist!\n");
+    }
 }
 
-void threadFunc(const std::string& name)
+void threadFunc(int index, const std::string& name)
 {
     printf("Thread %s start\n", name.c_str());
-    gConnectorVector.insert(gConnectorVector.begin(), std::make_shared<ConnectorTest>(name));
+    gConnectorVector[index] = std::make_shared<ConnectorTest>(name);
 
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::seconds(20));
+    printf("Thread %s end\n", name.c_str());
 }
 
 void multiConnector()
 {
-    if (gConnectorVector.size() != 0) {
-        gConnectorVector.clear();
-    }
-
     std::thread threadArray[gServiceNameVector.size()];
     for (int i = 0; i < gServiceNameVector.size(); i++) {
         std::string name = gServiceNameVector[i];
-        threadArray[i] = std::thread(threadFunc, name);
+        threadArray[i] = std::thread(threadFunc, i, name);
     }
 
     for (auto i = 0; i < gServiceNameVector.size(); i++) {
         threadArray[i].join();
     }
+}
+
+void listFriends()
+{
+    if (gPeerNode == nullptr) {
+        printf("Please start first!\n");
+        return;
+    }
+    std::stringstream ss;
+    gPeerNode->GetFriendList(&ss);
+    printf("%s\n", ss.str().c_str());
+}
+
+void sendMessage(const std::string& friendCode, const std::string& message)
+{
+    if (gConnector == nullptr) {
+        printf("Please create connector first!\n");
+        return;
+    }
+
+    gConnector->mConnector->SendMessage(friendCode, message);
 }
