@@ -14,3 +14,5 @@ SUBDIRLIST(DirList ${CMAKE_CURRENT_SOURCE_DIR})
 FOREACH(subdir ${DirList})
   ADD_SUBDIRECTORY(${subdir})
 ENDFOREACH()
+
+include_directories("${CMAKE_INSTALL_PREFIX}/include")
