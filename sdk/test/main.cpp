@@ -95,7 +95,7 @@ void createAndStartPeerNode() {
     gPeerNode = elastos::PeerNode::GetInstance(path);
 
     class Listener : public elastos::PeerListener::Listener {
-        virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const ContactListener::AcquireArgs& request) {
+        virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const ElaphantContact::Listener::AcquireArgs& request) {
             std::shared_ptr<std::vector<uint8_t>> response;
 
             switch(request.type) {
@@ -187,9 +187,7 @@ void listFriends()
         printf("Please start first!\n");
         return;
     }
-    std::stringstream ss;
-    gPeerNode->GetFriendList(&ss);
-    printf("%s\n", ss.str().c_str());
+    const auto& friendList = gPeerNode->ListFriendInfo();
 }
 
 void sendMessage(const std::string& friendCode, const std::string& message)

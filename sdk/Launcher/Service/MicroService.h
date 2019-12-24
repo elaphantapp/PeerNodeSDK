@@ -17,8 +17,8 @@ public:
             : mOutter(outter)
         {}
 
-        virtual void onEvent(ContactListener::EventArgs& event) override;
-        virtual void onReceivedMessage(const std::string& humanCode, ContactChannel channelType,
+        virtual void onEvent(ElaphantContact::Listener::EventArgs& event) override;
+        virtual void onReceivedMessage(const std::string& humanCode, ElaphantContact::Channel channelType,
                                    std::shared_ptr<ElaphantContact::Message> msgInfo) override;
 
     private:

@@ -34,6 +34,8 @@ build_extfunc_depends()
 
     "$DEPENDS_DIR/scripts/build-curl.sh" $params
 
+    "$DEPENDS_DIR/scripts/build-sqlite.sh" $params
+
     "$DEPENDS_DIR/scripts/build-Elastos.SDK.Keypair.C.sh" $params;
 
     #CFG_BUILD_ROOT
