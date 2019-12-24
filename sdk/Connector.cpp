@@ -82,17 +82,7 @@ int Connector::AcceptFriend(const std::string& friendCode)
     return mPeerNode->AcceptFriend(friendCode);
 }
 
-int Connector::GetFriendList(std::stringstream* info)
-{
-    if (mPeerNode.get() == nullptr) {
-        printf("PeerNode not created!\n");
-        return -1;
-    }
-
-    return mPeerNode->GetFriendList(info);
-}
-
-int Connector::SetFriendInfo(const std::string& friendCode, int item, const std::string& value)
+int Connector::SetFriendInfo(const std::string& friendCode, ElaphantContact::HumanInfo::Item item, const std::string& value)
 {
     if (mPeerNode.get() == nullptr) {
         printf("PeerNode not created!\n");
@@ -102,21 +92,31 @@ int Connector::SetFriendInfo(const std::string& friendCode, int item, const std:
     return mPeerNode->SetFriendInfo(friendCode, item, value);
 }
 
-int Connector::GetStatus()
+int Connector::GetFriendInfo(const std::string& friendCode, std::shared_ptr<ElaphantContact::FriendInfo>& friendInfo)
+{
+    if (mPeerNode.get() == nullptr) {
+        printf("PeerNode not Created!\n");
+        return -1;
+    }
+
+    return mPeerNode->GetFriendInfo(friendCode, friendInfo);
+}
+
+ElaphantContact::Status Connector::GetStatus()
 {
     if (mPeerNode.get() == nullptr) {
         printf("PeerNode not created!\n");
-        return -1;
+        return ElaphantContact::Status::Invalid;
     }
 
     return mPeerNode->GetStatus();
 }
 
-int Connector::GetFriendStatus(const std::string& friendCode)
+ElaphantContact::Status Connector::GetFriendStatus(const std::string& friendCode)
 {
     if (mPeerNode.get() == nullptr) {
         printf("PeerNode not created!\n");
-        return -1;
+        return ElaphantContact::Status::Invalid;
     }
 
     return mPeerNode->GetFriendStatus(friendCode);

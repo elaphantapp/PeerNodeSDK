@@ -22,7 +22,7 @@ void DestroyService(void* service)
 
 }
 
-void MicroService::MessageListener::onEvent(ContactListener::EventArgs& event)
+void MicroService::MessageListener::onEvent(ElaphantContact::Listener::EventArgs& event)
 {
     switch (event.type) {
     case ElaphantContact::Listener::EventType::StatusChanged:
@@ -52,7 +52,7 @@ void MicroService::MessageListener::onEvent(ContactListener::EventArgs& event)
 }
 
 void MicroService::MessageListener::onReceivedMessage(const std::string& humanCode,
-                ContactChannel channelType, std::shared_ptr<ElaphantContact::Message> msgInfo)
+                ElaphantContact::Channel channelType, std::shared_ptr<ElaphantContact::Message> msgInfo)
 {
     printf("Serice %s received message from %s content %s\n", mOutter->mName.c_str(),
                         humanCode.c_str(), msgInfo->data->toString().c_str());

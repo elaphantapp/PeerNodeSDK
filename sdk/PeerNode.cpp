@@ -61,7 +61,7 @@ void PeerNode::ContactListener::onEvent(ContactListener::EventArgs& event)
 }
 
 void PeerNode::ContactListener::onReceivedMessage(const std::string& humanCode,
-                        ContactChannel channelType,
+                        ElaphantContact::Channel channelType,
                         std::shared_ptr<ElaphantContact::Message> msgInfo)
 {
     if (msgInfo->type == ElaphantContact::Message::Type::MsgText) {
@@ -115,14 +115,14 @@ std::vector<std::shared_ptr<PeerListener::MessageListener>> PeerNode::ContactLis
 
 /*************************** PeerNode::ContactDataListener ***************************/
 void PeerNode::ContactDataListener::onNotify(const std::string& humanCode,
-                        ContactChannel channelType,
+                        ElaphantContact::Channel channelType,
                         const std::string& dataId, int status)
 {
     if (mNode->mDataListenerMap.empty()) return;
 }
 
 int PeerNode::ContactDataListener::onReadData(const std::string& humanCode,
-                        ContactChannel channelType,
+                        ElaphantContact::Channel channelType,
                         const std::string& dataId, uint64_t offset,
                         std::vector<uint8_t>& data)
 {
@@ -131,7 +131,7 @@ int PeerNode::ContactDataListener::onReadData(const std::string& humanCode,
 }
 
 int PeerNode::ContactDataListener::onWriteData(const std::string& humanCode,
-                        ContactChannel channelType,
+                        ElaphantContact::Channel channelType,
                         const std::string& dataId, uint64_t offset,
                         const std::vector<uint8_t>& data)
 {
@@ -171,8 +171,8 @@ PeerNode::PeerNode(const std::string& path)
 
     mContactListener = std::make_shared<PeerNode::ContactListener>(this);
     mContactDataListener = std::make_shared<PeerNode::ContactDataListener>(this);
-    mContact->setListener(mContactListener.get());
-    mContact->setDataListener(mContactDataListener.get());
+    mContact->setListener(mContactListener);
+    mContact->setDataListener(mContactDataListener);
 }
 
 std::string PeerNode::GetDid()
@@ -296,7 +296,7 @@ int PeerNode::Stop()
     return mContact->stop();
 }
 
-int PeerNode::SetUserInfo(int item, const std::string& value)
+int PeerNode::SetUserInfo(ElaphantContact::HumanInfo::Item item, const std::string& value)
 {
     if (mContact.get() == nullptr) {
         printf("ElaphantContact not Created!\n");
@@ -307,7 +307,7 @@ int PeerNode::SetUserInfo(int item, const std::string& value)
     return mContact->setHumanInfo(did, item, value.c_str());
 }
 
-int PeerNode::SetIdentifyCode(int type, const std::string& value)
+int PeerNode::SetIdentifyCode(ElaphantContact::UserInfo::Type type, const std::string& value)
 {
     if (mContact.get() == nullptr) {
         printf("ElaphantContact not Created!\n");
@@ -347,17 +347,7 @@ int PeerNode::AcceptFriend(const std::string& friendCode)
     return mContact->acceptFriend(friendCode);
 }
 
-int PeerNode::GetFriendList(std::stringstream* info)
-{
-    if (mContact.get() == nullptr) {
-        printf("ElaphantContact not Created!\n");
-        return -1;
-    }
-
-    return mContact->getFriendList(info);
-}
-
-int PeerNode::SetFriendInfo(const std::string& friendCode, int item, const std::string& value)
+int PeerNode::SetFriendInfo(const std::string& friendCode, ElaphantContact::HumanInfo::Item item, const std::string& value)
 {
     if (mContact.get() == nullptr) {
         printf("ElaphantContact not Created!\n");
@@ -367,7 +357,22 @@ int PeerNode::SetFriendInfo(const std::string& friendCode, int item, const std::
     return mContact->setHumanInfo(friendCode, item, value);
 }
 
-int PeerNode::PullData(const std::string& humanCode, int chType, const std::string& devId, const std::string& dataId)
+int PeerNode::GetFriendInfo(const std::string& friendCode, std::shared_ptr<ElaphantContact::FriendInfo>& friendInfo)
+{
+    if (mContact.get() == nullptr) {
+        printf("ElaphantContact not Created!\n");
+        return -1;
+    }
+
+    std::shared_ptr<ElaphantContact::HumanInfo> humanInfo;
+    int ret = mContact->getHumanInfo(friendCode, humanInfo);
+    if (ret == 0) {
+        friendInfo = std::dynamic_pointer_cast<ElaphantContact::FriendInfo>(humanInfo);
+    }
+    return ret;
+}
+
+int PeerNode::PullData(const std::string& humanCode, ElaphantContact::Channel chType, const std::string& devId, const std::string& dataId)
 {
     if (mContact.get() == nullptr) {
         printf("ElaphantContact not Created!\n");
@@ -377,7 +382,7 @@ int PeerNode::PullData(const std::string& humanCode, int chType, const std::stri
     return mContact->pullData(humanCode.c_str(), chType, devId.c_str(), dataId.c_str());
 }
 
-int PeerNode::CancelPullData(const std::string& humanCode, int chType, const std::string& devId, const std::string& dataId)
+int PeerNode::CancelPullData(const std::string& humanCode, ElaphantContact::Channel chType, const std::string& devId, const std::string& dataId)
 {
     if (mContact.get() == nullptr) {
         printf("ElaphantContact not Created!\n");
@@ -418,22 +423,22 @@ int PeerNode::SetWalletAddress(const std::string& name, const std::string& value
     return mContact->setWalletAddress(name.c_str(), value.c_str());
 }
 
-int PeerNode::GetStatus()
+ElaphantContact::Status PeerNode::GetStatus()
 {
     if (mContact.get() == nullptr) {
         printf("ElaphantContact not Created!\n");
-        return -1;
+        return ElaphantContact::Status::Invalid;
     }
 
     std::string did = GetDid();
     return mContact->getHumanStatus(did.c_str());
 }
 
-int PeerNode::GetFriendStatus(const std::string& friendCode)
+ElaphantContact::Status PeerNode::GetFriendStatus(const std::string& friendCode)
 {
     if (mContact.get() == nullptr) {
         printf("ElaphantContact not Created!\n");
-        return -1;
+        return ElaphantContact::Status::Invalid;
     }
 
     return mContact->getHumanStatus(friendCode.c_str());
@@ -472,7 +477,7 @@ int PeerNode::SendMessage(const std::string& friendCode, const std::string& mess
         return -1;
     }
 
-    return mContact->sendMessage(friendCode.c_str(), ContactChannel::Carrier, msgInfo);
+    return mContact->sendMessage(friendCode.c_str(), ElaphantContact::Channel::Carrier, msgInfo);
 }
 
 }

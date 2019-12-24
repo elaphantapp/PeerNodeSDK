@@ -36,7 +36,7 @@ int InitPeerNode(const std::string& path, const std::string& privateKey, const s
             , mPublicKey(publicKey)
         {}
 
-        virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const ContactListener::AcquireArgs& request) {
+        virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const ElaphantContact::Listener::AcquireArgs& request) {
             std::shared_ptr<std::vector<uint8_t>> response;
 
             switch(request.type) {

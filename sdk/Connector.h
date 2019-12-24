@@ -24,11 +24,11 @@ public:
     int AddFriend(const std::string& friendCode, const std::string& summary);
     int RemoveFriend(const std::string& friendCode);
     int AcceptFriend(const std::string& friendCode);
-    int GetFriendList(std::stringstream* info);
-    int SetFriendInfo(const std::string& friendCode, int item, const std::string& value);
+    int SetFriendInfo(const std::string& friendCode, ElaphantContact::HumanInfo::Item item, const std::string& value);
+    int GetFriendInfo(const std::string& friendCode, std::shared_ptr<ElaphantContact::FriendInfo>& friendInfo);
 
-    int GetStatus();
-    int GetFriendStatus(const std::string& friendCode);
+    ElaphantContact::Status GetStatus();
+    ElaphantContact::Status GetFriendStatus(const std::string& friendCode);
 
     std::shared_ptr<ElaphantContact::UserInfo> GetUserInfo();
     std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ListFriendInfo();

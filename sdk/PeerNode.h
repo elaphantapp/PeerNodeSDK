@@ -19,12 +19,12 @@ private:
 
         virtual ~ContactListener() = default;
 
-        virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const ContactListener::AcquireArgs& request) override;
+        virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const ElaphantContact::Listener::AcquireArgs& request) override;
 
-        virtual void onEvent(ContactListener::EventArgs& event) override;
+        virtual void onEvent(ElaphantContact::Listener::EventArgs& event) override;
 
         virtual void onReceivedMessage(const std::string& humanCode,
-                                       ContactChannel channelType,
+                                       ElaphantContact::Channel channelType,
                                        std::shared_ptr<ElaphantContact::Message> msgInfo) override;
 
         virtual void onError(int errCode, const std::string& errStr,
@@ -45,16 +45,16 @@ private:
         virtual ~ContactDataListener() = default;
 
         virtual void onNotify(const std::string& humanCode,
-                              ContactChannel channelType,
+                              ElaphantContact::Channel channelType,
                               const std::string& dataId, int status) override;
 
         virtual int onReadData(const std::string& humanCode,
-                               ContactChannel channelType,
+                               ElaphantContact::Channel channelType,
                                const std::string& dataId, uint64_t offset,
                                std::vector<uint8_t>& data) override;
 
         virtual int onWriteData(const std::string& humanCode,
-                                ContactChannel channelType,
+                                ElaphantContact::Channel channelType,
                                 const std::string& dataId, uint64_t offset,
                                 const std::vector<uint8_t>& data) override;
     private:
@@ -80,25 +80,26 @@ public:
     int Start();
     int Stop();
 
-    int SetUserInfo(int item, const std::string& value);
-    int SetIdentifyCode(int type, const std::string& value);
+    int SetUserInfo(ElaphantContact::HumanInfo::Item item, const std::string& value);
+    int SetIdentifyCode(ElaphantContact::UserInfo::Type type, const std::string& value);
 
     int AddFriend(const std::string& friendCode, const std::string& summary);
     int RemoveFriend(const std::string& friendCode);
     int AcceptFriend(const std::string& friendCode);
-    int GetFriendList(std::stringstream* info);
-    int SetFriendInfo(const std::string& friendCode, int item, const std::string& value);
+    int SetFriendInfo(const std::string& friendCode, ElaphantContact::HumanInfo::Item item, const std::string& value);
+    int GetFriendInfo(const std::string& friendCode, std::shared_ptr<ElaphantContact::FriendInfo>& friendInfo);
 
-    int PullData(const std::string& humanCode, int chType, const std::string& devId, const std::string& dataId);
-    int CancelPullData(const std::string& humanCode, int chType, const std::string& devId, const std::string& dataId);
+
+    int PullData(const std::string& humanCode, ElaphantContact::Channel chType, const std::string& devId, const std::string& dataId);
+    int CancelPullData(const std::string& humanCode, ElaphantContact::Channel chType, const std::string& devId, const std::string& dataId);
 
     int SyncInfoDownloadFromDidChain();
     int SyncInfoUploadToDidChain();
 
     int SetWalletAddress(const std::string& name, const std::string& value);
 
-    int GetStatus();
-    int GetFriendStatus(const std::string& friendCode);
+    ElaphantContact::Status GetStatus();
+    ElaphantContact::Status GetFriendStatus(const std::string& friendCode);
 
     std::shared_ptr<ElaphantContact::UserInfo> GetUserInfo();
     std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ListFriendInfo();
@@ -128,8 +129,8 @@ private:
     std::mutex mDataListenerMutex;
 
     std::shared_ptr<ElaphantContact> mContact;
-    std::shared_ptr<ContactListener> mContactListener;
-    std::shared_ptr<ContactDataListener> mContactDataListener;
+    std::shared_ptr<ElaphantContact::Listener> mContactListener;
+    std::shared_ptr<ElaphantContact::DataListener> mContactDataListener;
 };
 
 }
