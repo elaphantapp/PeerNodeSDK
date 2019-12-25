@@ -1,3 +1,6 @@
+include_directories("${CMAKE_INSTALL_PREFIX}/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../sdk")
+
 macro(SUBDIRLIST result curdir)
     file(GLOB children RELATIVE ${curdir} ${curdir}/*)
     set(dirlist "")
@@ -10,7 +13,6 @@ macro(SUBDIRLIST result curdir)
 endmacro()
 
 subdirlist(DirList ${CMAKE_CURRENT_SOURCE_DIR})
-
 foreach(subdir ${DirList})
     if(EXISTS "${subdir}/CMakeLists.txt")
         message(STATUS "Add subdirectory: ${subdir}")
@@ -25,5 +27,3 @@ foreach(subdir ${DirList})
         endforeach()
     endif()
 endforeach()
-
-include_directories("${CMAKE_INSTALL_PREFIX}/include")
