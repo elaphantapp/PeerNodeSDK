@@ -21,7 +21,7 @@ std::mutex mutex;
 bool serviceRunning = false;
 std::shared_ptr<elastos::PeerNode> gPeerNode;
 
-int InitPeerNode(const std::string& path, const std::string& privateKey, const std::string& publicKey)
+int InitPeerNode(const std::string& path, const std::string& privateKey, const char* publicKey)
 {
     gPeerNode = elastos::PeerNode::GetInstance(path);
     if (gPeerNode.get() == nullptr) {
@@ -153,13 +153,12 @@ int main(int argc, char* argv[])
     std::string library;
     std::string path;
     std::string privateKey;
-    std::string publicKey;
+    char* publicKey = nullptr;
 
     static struct option long_options[] =
     {
         {"name", required_argument, NULL, 'n'},
         {"path", required_argument, NULL, 'p'},
-        {"secret", required_argument, NULL, 's'},
         {"key", required_argument, NULL, 'k'},
         {"help", no_argument, NULL, 'h'},
         {0, 0, 0, 0}
@@ -167,7 +166,7 @@ int main(int argc, char* argv[])
 
     while(1) {
         int opt_index = 0;
-        c = getopt_long(argc, argv, "n:p:s:k:h", long_options, &opt_index);
+        c = getopt_long(argc, argv, "n:p:k:h", long_options, &opt_index);
 
         if (-1 == c) {
             break;
@@ -182,13 +181,9 @@ int main(int argc, char* argv[])
                 printf("param p: %s\n", argv[optind]);
                 path = argv[optind];
                 break;
-            case 's':
-                printf("param s: %s\n", argv[optind]);
-                privateKey = argv[optind];
-                break;
             case 'k':
                 printf("param k: %s\n", argv[optind]);
-                publicKey = argv[optind];
+                privateKey = argv[optind];
                 break;
             default:
                 printf("param default: %s\n", argv[optind]);
@@ -207,23 +202,28 @@ int main(int argc, char* argv[])
     }
 
     if (privateKey.empty()) {
-        printf("Please set service public key by -secret!\n");
+        printf("Please set service private key by -key!\n");
         return -1;
     }
 
-    if (publicKey.empty()) {
-        printf("Please set service public key by -key!\n");
+    publicKey = getPublicKeyFromPrivateKey(privateKey.c_str());
+    if (!publicKey) {
+        printf("Get public key from private key failed!\n");
         return -1;
     }
 
+    char* did = getDid(publicKey);
     auto ret = InitPeerNode(path, privateKey, publicKey);
     if (ret != 0) {
         printf("Init peer node failed\n");
+        free(publicKey);
         return ret;
     }
 
     serviceRunning = true;
-    std::thread workthread(StartService, library, path);
+    std::stringstream ss;
+    ss << path << "/" << did;
+    std::thread workthread(StartService, library, ss.str());
 
     while (1) {
         std::string command;
@@ -234,5 +234,7 @@ int main(int argc, char* argv[])
         }
     }
 
+    free(publicKey);
+    free(did);
     return EXIT_SUCCESS;
 }
