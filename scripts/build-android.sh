@@ -21,12 +21,13 @@ cd "$ANDROID_DIR";
 ./gradlew :sdk:assembleDebug -P versionCode=${PROJECT_REVISION} -P versionName=${PROJECT_VERSION/v/}
 rm -rf "$TARGET_PATH";
 cp "$ANDROID_DIR/sdk/build/outputs/aar/sdk-debug.aar" "$TARGET_PATH";
+cp "$ANDROID_DIR/sdk/libs/"*.aar "$PACKAGE_DIR";
 git tag --force ${PROJECT_VERSION}
 
 
 TARBALL_PATH="$PACKAGE_DIR/${PROJECT_NAME}-android-${PROJECT_VERSION}.zip";
 cd "$PACKAGE_DIR";
-zip -r "$TARBALL_PATH" . -i $(basename "$TARGET_PATH");
+zip -r "$TARBALL_PATH" . -i *.aar;
 
 echo "Done!!!";
 
