@@ -6,7 +6,7 @@ namespace elastos {
 
 extern "C" {
 
-void* CreateService(const char* path)
+void* CreateService(const char* path, const char* info_path)
 {
     MicroService* service = new MicroService(path);
     return static_cast<void *>(service);

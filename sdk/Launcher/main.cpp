@@ -12,7 +12,7 @@
 
 using namespace elastos;
 
-typedef void* (*Creator)(const char* path);
+typedef void* (*Creator)(const char* path,const char* info_path);
 
 typedef void (*Destroy)(void* service);
 
@@ -94,7 +94,7 @@ int InitPeerNode(const std::string& path, const std::string& privateKey, const c
     return ret;
 }
 
-void StartService(const std::string& library, const std::string& path)
+void StartService(const std::string& library, const std::string& path, const std::string& info_path)
 {
     void *handle = dlopen(library.c_str(), RTLD_LAZY);
     if (!handle) {
@@ -114,7 +114,7 @@ void StartService(const std::string& library, const std::string& path)
         return;
     }
 
-    service = CreateService(path.c_str());
+    service = CreateService(path.c_str(), info_path.c_str());
     if (service == NULL) {
         fprintf(stderr, "Create Service failed!\n");
         dlclose(handle);
@@ -153,6 +153,7 @@ int main(int argc, char* argv[])
     std::string library;
     std::string path;
     std::string privateKey;
+    std::string info_path;
     char* publicKey = nullptr;
 
     static struct option long_options[] =
@@ -160,18 +161,19 @@ int main(int argc, char* argv[])
         {"name", required_argument, NULL, 'n'},
         {"path", required_argument, NULL, 'p'},
         {"key", required_argument, NULL, 'k'},
+        {"info", required_argument, NULL, 'i'},
         {"help", no_argument, NULL, 'h'},
         {0, 0, 0, 0}
     };
 
     while(1) {
         int opt_index = 0;
-        c = getopt_long(argc, argv, "n:p:k:h", long_options, &opt_index);
+        c = getopt_long(argc, argv, "n:p:k:i:h", long_options, &opt_index);
 
         if (-1 == c) {
             break;
         }
-
+        printf("c:%x, optind:%d\n", c, optind);
         switch(c) {
             case 'n':
                 printf("param n: %s\n", argv[optind]);
@@ -184,6 +186,10 @@ int main(int argc, char* argv[])
             case 'k':
                 printf("param k: %s\n", argv[optind]);
                 privateKey = argv[optind];
+                break;
+            case 'i':
+                printf("param i: %s\n", argv[optind]);
+                info_path = argv[optind];
                 break;
             default:
                 printf("param default: %s\n", argv[optind]);
@@ -205,6 +211,10 @@ int main(int argc, char* argv[])
         printf("Please set service private key by -key!\n");
         return -1;
     }
+    if (info_path.empty()) {
+        printf("Please set service info path by -infopath!\n");
+        return -1;
+    }
 
     publicKey = getPublicKeyFromPrivateKey(privateKey.c_str());
     if (!publicKey) {
@@ -223,7 +233,7 @@ int main(int argc, char* argv[])
     serviceRunning = true;
     std::stringstream ss;
     ss << path << "/" << did;
-    std::thread workthread(StartService, library, ss.str());
+    std::thread workthread(StartService, library, ss.str(), info_path.c_str());
 
     while (1) {
         std::string command;
