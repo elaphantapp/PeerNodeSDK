@@ -19,21 +19,6 @@ class ViewController: UIViewController {
     
     let devId = getDeviceId()
     Log.i(tag: ViewController.TAG, msg: "Device ID:" + devId)
-
-    mSavedMnemonic = UserDefaults.standard.string(forKey: ViewController.SavedMnemonicKey)
-    if mSavedMnemonic == nil {
-      var mnem = String()
-      let ret = Contact.Debug.Keypair.GenerateMnemonic(language: ViewController.KeypairLanguage,
-                                                       words: ViewController.KeypairWords,
-                                                       mnem:&mnem)
-      if(ret < 0) {
-        showMessage(ViewController.ErrorPrefix + "Failed to call Contact.Debug.Keypair.GenerateMnemonic()")
-        return
-      }
-      _ = newAndSaveMnemonic(mnem)
-    }
-
-    showMessage("Mnemonic:\(mSavedMnemonic ?? "nil")\n")
     
     let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
     mPeerNode = PeerNode.GetInstance(path: cacheDir!.path, deviceId: getDeviceId())
@@ -161,40 +146,12 @@ class ViewController: UIViewController {
     }
   }
 
-func newAndSaveMnemonic(_ newMnemonic: String?) -> String? {
-    mSavedMnemonic = newMnemonic
-    if mSavedMnemonic == nil {
-      var mnem = String()
-      let ret = Contact.Debug.Keypair.GenerateMnemonic(language: ViewController.KeypairLanguage,
-                                                       words: ViewController.KeypairWords,
-                                                       mnem:&mnem)
-      if(ret < 0) {
-        showMessage(ViewController.ErrorPrefix + "Failed to call Contact.Debug.Keypair.GenerateMnemonic()")
-        return nil
-      }
-      mSavedMnemonic = mnem
-    }
-  
-    UserDefaults.standard.set(mSavedMnemonic, forKey: ViewController.SavedMnemonicKey)
-
-    let dialog = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
-    dialog.message = "New mnemonic can only be valid after restart,\ndo you want restart app?"
-    dialog.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-      exit(0)
-    }))
-    dialog.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-    
-    self.present(dialog, animated: false, completion: nil)
-
-    return ("Cancel to save mnemonic: \(newMnemonic ?? "nil")\n")
-  }
-  
   private func processAcquire(request: Contact.Listener.AcquireArgs) -> Data? {
     var response: Data?
   
     switch (request.type) {
       case .PublicKey:
-        response = getPublicKey().data(using: .utf8)
+        response = mPublicKey.data(using: .utf8)
         break
       case .EncryptData:
         response = request.data // plaintext
@@ -242,40 +199,6 @@ func newAndSaveMnemonic(_ newMnemonic: String?) -> String? {
     }
   }
   
-  private func getPublicKey() -> String {
-    var seed = Data()
-    var ret = Contact.Debug.Keypair.GetSeedFromMnemonic(mnemonic: mSavedMnemonic!,
-                                                        mnemonicPassword: "",
-                                                        seed: &seed)
-    if(ret < 0) {
-      showMessage(ViewController.ErrorPrefix + "Failed to call Contact.Debug.Keypair.GetSeedFromMnemonic()")
-    }
-    var pubKey = String()
-    ret = Contact.Debug.Keypair.GetSinglePublicKey(seed: seed, pubKey: &pubKey)
-    if(ret < 0) {
-      showMessage(ViewController.ErrorPrefix + "Failed to call Contact.Debug.Keypair.GetSinglePublicKey()")
-    }
-
-    return pubKey
-  }
-
-  private func getPrivateKey() -> String {
-    var seed = Data()
-    var ret = Contact.Debug.Keypair.GetSeedFromMnemonic(mnemonic: mSavedMnemonic!,
-                                                        mnemonicPassword: "",
-                                                        seed: &seed)
-    if(ret < 0) {
-      showMessage(ViewController.ErrorPrefix + "Failed to call Contact.Debug.Keypair.GetSeedFromMnemonic()")
-    }
-    var privKey = String()
-    ret = Contact.Debug.Keypair.GetSinglePrivateKey(seed: seed, privKey: &privKey)
-    if(ret < 0) {
-      showMessage(ViewController.ErrorPrefix + "Failed to call Contact.Debug.Keypair.GetSinglePrivateKey()")
-    }
-
-    return privKey
-  }
-  
   private func getAgentAuthHeader() -> Data {
     let appid = "org.elastos.debug.didplugin"
     //let appkey = "b2gvzUM79yLhCbbGNWCuhSsGdqYhA7sS"
@@ -292,10 +215,8 @@ func newAndSaveMnemonic(_ newMnemonic: String?) -> String? {
       return nil
     }
     
-    let privKey = getPrivateKey()
-
     var signedData = Data()
-    let ret = Contact.Debug.Keypair.Sign(privateKey: privKey, data: data!, signedData: &signedData)
+    let ret = Contact.Debug.Keypair.Sign(privateKey: mPrivateKey, data: data!, signedData: &signedData)
     if(ret < 0) {
       showMessage(ViewController.ErrorPrefix + "Failed to call Contact.Debug.Keypair.Sign()")
       return nil
@@ -367,7 +288,10 @@ func newAndSaveMnemonic(_ newMnemonic: String?) -> String? {
   @IBOutlet weak var eventLog: UITextView!
   
 //  private var mCacheDir: URL?
-  private var mSavedMnemonic: String?
+//  private var mSavedMnemonic = "tail life decide leaf grace knee point topple napkin flavor orbit marble"
+  private var mPublicKey = "02ad88ba403b4d1846ba94584aa56aab17e7de540673e8c4af765125a927209dee"
+  private var mPrivateKey = "ecac0e201cda97406d14cb42d02392906a4e560ca52ab7ca53c772bf45abd0db"
+  
   private var mPeerNode: PeerNode?
   private var mPeerNodeListener: PeerNodeListener.Listener?
 //  private var mContactDataListener: Contact.DataListener?
