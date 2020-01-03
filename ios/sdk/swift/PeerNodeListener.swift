@@ -10,7 +10,9 @@ import Foundation
 import ContactSDK
 
 open class PeerNodeListener {
-  public class Listener {
+  open class Listener {
+    public init() { }
+    
     open func onAcquire(request: Contact.Listener.AcquireArgs) -> Data? {
       fatalError("\(#function) not implementation.")
     }
@@ -20,7 +22,9 @@ open class PeerNodeListener {
     }
   }
   
-  public class MessageListener {
+  open class MessageListener {
+    public init() { }
+    
     open func onEvent(event: Contact.Listener.EventArgs) {
       fatalError("\(#function) not implementation.")
     }
@@ -30,7 +34,9 @@ open class PeerNodeListener {
     }
   }
   
-  public class DataListener {
+  open class DataListener {
+    public init() { }
+    
     open func onNotify(humanCode: String, channelType: Contact.Channel, dataId: String,
                        status: Contact.DataListener.Status) {
       fatalError("\(#function) not implementation.")

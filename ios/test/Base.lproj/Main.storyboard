@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -56,207 +55,17 @@
                                     <button opaque="NO" tag="100" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uCZ-XY-KQ7">
                                         <rect key="frame" x="9.3333333333333321" y="5" width="208" height="30"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="Get Started"/>
+                                        <state key="normal" title="Create Service"/>
                                         <connections>
                                             <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ymG-jf-dba"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dss-n4-kvS">
-                                        <rect key="frame" x="9.3333333333333321" y="30" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="Log"/>
-                                    </button>
                                     <button opaque="NO" tag="101" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OYG-7I-FOn">
-                                        <rect key="frame" x="9.3333333333333321" y="55" width="208" height="30"/>
+                                        <rect key="frame" x="8" y="42" width="208" height="30"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   `- Clear Event"/>
+                                        <state key="normal" title="Send Message"/>
                                         <connections>
                                             <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tAO-l5-WXH"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="frY-FC-NBb">
-                                        <rect key="frame" x="9" y="80" width="201" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="Mnemonic"/>
-                                    </button>
-                                    <button opaque="NO" tag="102" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GBB-c8-HBt">
-                                        <rect key="frame" x="9.3333333333333321" y="105" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- New And Save Mnemonic"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3qU-bv-B60"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="103" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Waj-e6-4jN">
-                                        <rect key="frame" x="9.3333333333333321" y="130" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   `- Import Mnemonic"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="hMd-1U-l6Y"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wib-GA-bbh">
-                                        <rect key="frame" x="9.3333333333333321" y="155" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="Contact"/>
-                                    </button>
-                                    <button opaque="NO" tag="104" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kyF-YW-ASB">
-                                        <rect key="frame" x="9.3333333333333321" y="180" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- New and Start Contact"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0TI-Od-E2n"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="105" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4ME-F4-fYT">
-                                        <rect key="frame" x="9.3333333333333321" y="205" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Stop and Del Contact"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6Qr-Ah-BwP"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="106" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DVE-A1-us8">
-                                        <rect key="frame" x="9.3333333333333321" y="230" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Recreate Contact"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="WZa-yb-lpy"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="107" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Uiz-wf-rSy">
-                                        <rect key="frame" x="9.3333333333333321" y="255" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   `- Restart Contact"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Nvu-3g-JBW"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xuq-Oy-W4T">
-                                        <rect key="frame" x="9.3333333333333321" y="280" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="User"/>
-                                    </button>
-                                    <button opaque="NO" tag="108" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DbA-ot-1KR">
-                                        <rect key="frame" x="9.3333333333333321" y="305" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Get User Info"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="mih-mz-xNS"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="109" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7Hn-SG-N94">
-                                        <rect key="frame" x="9.3333333333333321" y="330" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Set User IdentifyCode"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="oeK-l4-ycC"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="110" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="clb-0Z-wu3">
-                                        <rect key="frame" x="9.3333333333333321" y="355" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Set User Details"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="mg6-x4-mSK"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="111" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qGM-n3-f5n">
-                                        <rect key="frame" x="9.3333333333333321" y="380" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Set Wallet Address"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="9lc-GI-0jI"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="112" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="L3a-S8-es6">
-                                        <rect key="frame" x="9.3333333333333321" y="405" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Sync Upload"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="N8A-KK-ZiJ"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="113" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TNi-i5-5PU">
-                                        <rect key="frame" x="9.3333333333333321" y="430" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   `- Sync Download"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4BO-0X-bim"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4eR-er-0Tf">
-                                        <rect key="frame" x="9.3333333333333321" y="455" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="Friend"/>
-                                    </button>
-                                    <button opaque="NO" tag="114" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zbE-im-ABZ">
-                                        <rect key="frame" x="9.3333333333333321" y="480" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Friend Info"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="jUZ-AH-gFC"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="115" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G77-c8-pgq">
-                                        <rect key="frame" x="9.3333333333333321" y="505" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Add Friend"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5ej-hl-Xun"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="116" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uyp-Q5-1Jl">
-                                        <rect key="frame" x="9.3333333333333321" y="530" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Del Friend"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Vyn-6N-YJD"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="117" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JIk-AT-gX0">
-                                        <rect key="frame" x="9.3333333333333321" y="555" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Send Text Message"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="PjR-5E-25U"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="118" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wIb-4x-4te">
-                                        <rect key="frame" x="9.3333333333333321" y="580" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Send File Message"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="KXW-PZ-iqj"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="119" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uCi-Oc-LYb">
-                                        <rect key="frame" x="9.3333333333333321" y="605" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   |- Pull File"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="lSb-eU-HQT"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" tag="120" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iqx-Og-5th">
-                                        <rect key="frame" x="9.3333333333333321" y="630" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   `- Cancel Pull File"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="JVw-ig-gtO"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="evu-Kc-vbM">
-                                        <rect key="frame" x="9.3333333333333321" y="655" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="Debug"/>
-                                    </button>
-                                    <button opaque="NO" tag="121" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZNV-tt-Iiv">
-                                        <rect key="frame" x="9.3333333333333321" y="680" width="208" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="   `- Show Cached DidProp"/>
-                                        <connections>
-                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Vo2-2q-NKi"/>
                                         </connections>
                                     </button>
                                 </subviews>
