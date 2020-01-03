@@ -13,6 +13,9 @@ PROJECT_BUILDTYPE="Release";
 PROJECT_REVISION="$(git rev-list --count HEAD)";
 PROJECT_VERSION="v0.1.$PROJECT_REVISION";
 
+"$SCRIPT_DIR/build.sh" --platform iOS --arch x86_64;
+"$SCRIPT_DIR/build.sh" --platform iOS --arch arm64;
+
 IOS_DIR="$PROJECT_DIR/ios";
 cd "$IOS_DIR";
 export CURRENT_PROJECT_VERSION=${PROJECT_REVISION};

@@ -24,6 +24,10 @@
 		DE47BBA82398A125005104D9 /* CrossPL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE47BB9A239800E6005104D9 /* CrossPL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE598EDA2350106800ECA160 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE598ED92350106800ECA160 /* ImagePicker.swift */; };
 		DE978FDB233BB47B00F5B5F9 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE978FDA233BB47B00F5B5F9 /* Helper.swift */; };
+		DEB5D25523BED5480036EAF6 /* ContactSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE47BB99239800E6005104D9 /* ContactSDK.framework */; };
+		DEB5D25623BED5480036EAF6 /* ContactSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE47BB99239800E6005104D9 /* ContactSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DEB5D25723BEE0740036EAF6 /* CrossPL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE47BB9A239800E6005104D9 /* CrossPL.framework */; };
+		DEB5D25823BEE0740036EAF6 /* CrossPL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE47BB9A239800E6005104D9 /* CrossPL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +59,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				DEB5D25823BEE0740036EAF6 /* CrossPL.framework in Embed Frameworks */,
+				DEB5D25623BED5480036EAF6 /* ContactSDK.framework in Embed Frameworks */,
 				DE47BBA52398A112005104D9 /* PeerNodeSDK.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -96,6 +102,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DEB5D25723BEE0740036EAF6 /* CrossPL.framework in Frameworks */,
+				DEB5D25523BED5480036EAF6 /* ContactSDK.framework in Frameworks */,
 				DE47BBA42398A112005104D9 /* PeerNodeSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -380,27 +388,7 @@
 					"-I../build/sysroot/iOS/$ARCHS/include",
 					"-DWITH_CROSSPL",
 				);
-				OTHER_LDFLAGS = (
-					"-L../build/sysroot/iOS/$ARCHS/lib",
-					"-lElastos.SDK.Keypair.C",
-					"-lz",
-					"-lcrypto",
-					"-lssl",
-					"-lcjson",
-					"-lelacarrier",
-					"-lelafiletrans",
-					"-lelasession",
-					"-lflatccrt",
-					"-lpjmedia",
-					"-lpjnath",
-					"-lpjlib-util",
-					"-lpj",
-					"-lcrystal",
-					"-lsrtp",
-					"-ltoxcore",
-					"-lsodium",
-					"-lcurl",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = app.elaphant.sdk.peernode;
 				PRODUCT_NAME = PeerNodeSDK;
 				SKIP_INSTALL = YES;
@@ -441,27 +429,7 @@
 					"-I../build/sysroot/iOS/$ARCHS/include",
 					"-DWITH_CROSSPL",
 				);
-				OTHER_LDFLAGS = (
-					"-L../build/sysroot/iOS/$ARCHS/lib",
-					"-lElastos.SDK.Keypair.C",
-					"-lz",
-					"-lcrypto",
-					"-lssl",
-					"-lcjson",
-					"-lelacarrier",
-					"-lelafiletrans",
-					"-lelasession",
-					"-lflatccrt",
-					"-lpjmedia",
-					"-lpjnath",
-					"-lpjlib-util",
-					"-lpj",
-					"-lcrystal",
-					"-lsrtp",
-					"-ltoxcore",
-					"-lsodium",
-					"-lcurl",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = app.elaphant.sdk.peernode;
 				PRODUCT_NAME = PeerNodeSDK;
 				SKIP_INSTALL = YES;
@@ -481,6 +449,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/test/Frameworks",
+					"$(PROJECT_DIR)/frameworks",
 				);
 				INFOPLIST_FILE = test/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -505,6 +474,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/test/Frameworks",
+					"$(PROJECT_DIR)/frameworks",
 				);
 				INFOPLIST_FILE = test/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;

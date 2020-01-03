@@ -15,7 +15,7 @@ open class Connector {
   private var mMessagListener: PeerNodeListener.MessageListener? = nil
   private var mDataListener: PeerNodeListener.DataListener? = nil
   
-  init(serviceName: String) {
+  public init(serviceName: String) {
     mPeerNode = PeerNode.GetInstance()
     mServiceName = serviceName
   }
