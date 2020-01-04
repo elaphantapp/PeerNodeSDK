@@ -121,7 +121,28 @@ class ViewController: UIViewController {
 
   }
 
-  
+    private func addFriend() {
+        print("*** addFriend()")
+
+        var friendCodeInput = ""
+
+        let alert = UIAlertController(title: "Friend Code", message: "Please type a friend code", preferredStyle: .alert)
+
+        alert.addTextField { (textField) in
+            textField.text = "MD7RNZMEmt134yWjp3byby5RtsxPJkBqEZcgHRVtCPmB9cuu4u3M"
+        }
+
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alert] (_) in
+            friendCodeInput = (alert?.textFields![0].text)! // Force unwrapping because we know it exists.
+
+            print("friend code input: \(friendCodeInput)")
+            let ret = self.mPeerNode!.acceptFriend(friendCode: friendCodeInput)
+            print("ret: \(ret)")
+        }))
+
+        self.present(alert, animated: true, completion: nil)
+    }
+
   @IBAction func onOptionsMenuTapped(_ sender: Any) {
     optionsMenu.isHidden = !optionsMenu.isHidden
   }
@@ -132,6 +153,7 @@ class ViewController: UIViewController {
     enum ButtonTag: Int {
       case create_service = 100
       case send_msg = 101
+        case add_friend = 102
     }
     
     switch sender.tag {
@@ -141,6 +163,9 @@ class ViewController: UIViewController {
     case ButtonTag.send_msg.rawValue:
       sendMessage()
       break
+    case ButtonTag.add_friend.rawValue:
+        addFriend()
+        break
     default:
       fatalError("Button [\(sender.currentTitle!)(\(sender.tag))] not decleared.")
     }
@@ -288,10 +313,23 @@ class ViewController: UIViewController {
   @IBOutlet weak var eventLog: UITextView!
   
 //  private var mCacheDir: URL?
-//  private var mSavedMnemonic = "tail life decide leaf grace knee point topple napkin flavor orbit marble"
-  private var mPublicKey = "02ad88ba403b4d1846ba94584aa56aab17e7de540673e8c4af765125a927209dee"
-  private var mPrivateKey = "ecac0e201cda97406d14cb42d02392906a4e560ca52ab7ca53c772bf45abd0db"
-  
+
+  // DID 1
+  private let mSavedMnemonic = "tail life decide leaf grace knee point topple napkin flavor orbit marble"
+  private let mPublicKey = "02ad88ba403b4d1846ba94584aa56aab17e7de540673e8c4af765125a927209dee"
+  private let mPrivateKey = "ecac0e201cda97406d14cb42d02392906a4e560ca52ab7ca53c772bf45abd0db"
+  private let mCarrierAddress = "9N3C8AuXfEHXvWGz5VR9nU8rN3n32XhtG3NW2X54KKF7tVan2NVG"
+  private let mDID = "igHshxN1dApFu2y7xCDyQenpiYJ8Cjc9XA"
+
+/*
+    // DID 2
+    private let mSavedMnemonic = "shoot island position soft burden budget tooth cruel issue economy destroy above"
+    private let mPublicKey = "024bd8342acbfac4582705e93b573f5c01de16425b7f42f3d9f8892cefe32fa7af"
+    private let mPrivateKey = "1daf5ce87ed1114ed9f6e3417b4c3031ce048ece44c286d3c646a2ecee9c40a4"
+    private let mCarrierAddress = "MD7RNZMEmt134yWjp3byby5RtsxPJkBqEZcgHRVtCPmB9cuu4u3M"
+    private let mDID = "iemYy4qMieiZzJDb7uZDvEDnvko8yepN2y"
+ */
+
   private var mPeerNode: PeerNode?
   private var mPeerNodeListener: PeerNodeListener.Listener?
 //  private var mContactDataListener: Contact.DataListener?
