@@ -121,8 +121,8 @@ class ViewController: UIViewController {
 
   }
 
-    private func addFriend() {
-        print("*** addFriend()")
+    private func requestToAddFriend() {
+        print("*** requestToAddFriend()")
 
         var friendCodeInput = ""
 
@@ -136,7 +136,7 @@ class ViewController: UIViewController {
             friendCodeInput = (alert?.textFields![0].text)! // Force unwrapping because we know it exists.
 
             print("friend code input: \(friendCodeInput)")
-            let ret = self.mPeerNode!.acceptFriend(friendCode: friendCodeInput)
+            let ret = self.mPeerNode!.addFriend(friendCode: friendCodeInput, summary: "test")
             print("ret: \(ret)")
         }))
 
@@ -164,7 +164,7 @@ class ViewController: UIViewController {
       sendMessage()
       break
     case ButtonTag.add_friend.rawValue:
-        addFriend()
+        requestToAddFriend()
         break
     default:
       fatalError("Button [\(sender.currentTitle!)(\(sender.tag))] not decleared.")
