@@ -9,6 +9,7 @@
 import UIKit
 import ContactSDK
 import PeerNodeSDK
+import CommonCrypto
 
 class ViewController: UIViewController {
 
@@ -18,7 +19,7 @@ class ViewController: UIViewController {
     // Do any additional setup after loading the view.
     
     let devId = getDeviceId()
-    Log.i(tag: ViewController.TAG, msg: "Device ID:" + devId)
+    print("Device ID:" + devId)
     
     let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
     mPeerNode = PeerNode.GetInstance(path: cacheDir!.path, deviceId: getDeviceId())
@@ -203,9 +204,9 @@ class ViewController: UIViewController {
     let appid = "org.elastos.debug.didplugin"
     //let appkey = "b2gvzUM79yLhCbbGNWCuhSsGdqYhA7sS"
     let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
-    let auth = Utils.getMD5Sum(str: "appkey\(timestamp)")
+    let auth = getMD5Sum(str: "appkey\(timestamp)")
     let headerValue = "id=\(appid)time=\(timestamp)auth=\(auth)"
-    Log.i(tag: ViewController.TAG, msg: "getAgentAuthHeader() headerValue=" + headerValue)
+    print("getAgentAuthHeader() headerValue=" + headerValue)
   
     return headerValue.data(using: .utf8)!
   }
@@ -230,8 +231,25 @@ class ViewController: UIViewController {
     return devId!
   }
   
+  private func getMD5Sum(str: String) -> String {
+    let length = Int(CommonCrypto.CC_MD5_DIGEST_LENGTH)
+    let messageData = str.data(using: .utf8)!
+    var digestData = Data(count: length)
+    
+    _ = digestData.withUnsafeMutableBytes { digestBytes -> UInt8 in
+      messageData.withUnsafeBytes { messageBytes -> UInt8 in
+        if let messageBytesBaseAddress = messageBytes.baseAddress, let digestBytesBlindMemory = digestBytes.bindMemory(to: UInt8.self).baseAddress {
+          let messageLength = CC_LONG(messageData.count)
+          CC_MD5(messageBytesBaseAddress, messageLength, digestBytesBlindMemory)
+        }
+        return 0
+      }
+    }
+    return digestData.map { String(format: "%02hhx", $0) }.joined()
+  }
+  
   private func showMessage(_ msg: String) {
-    Log.i(tag: ViewController.TAG, msg: "\(msg)")
+    print(msg)
     
     DispatchQueue.main.async { [weak self] in
       self?.msgLog.text = msg
@@ -243,7 +261,7 @@ class ViewController: UIViewController {
   }
   
   private func showEvent(_ newMsg: String) {
-    print("\(newMsg)")
+    print(newMsg)
     DispatchQueue.main.async { [weak self] in
       self?.eventLog.text += "\n"
       self?.eventLog.text += newMsg
@@ -251,7 +269,7 @@ class ViewController: UIViewController {
   }
   
   private func showError(_ newErr: String) {
-    Log.e(tag: ViewController.TAG, msg: newErr)
+    print(newErr)
 
     DispatchQueue.main.async { [weak self] in
       self?.errLog.text = newErr
