@@ -57,6 +57,8 @@ class ViewController: UIViewController {
       showError("Failed to start PeerNode. ret = \(ret)")
     }
     showMessage("Success to start PeerNode.")
+
+    createConnector()
   }
 
   private func createConnector() {
@@ -64,7 +66,7 @@ class ViewController: UIViewController {
       return;
     }
 
-    mConnector = Connector(serviceName: "Test")
+    mConnector = Connector(serviceName: "test")
     mMsgListener = {
       class Impl: PeerNodeListener.MessageListener {
         init(_ vc: ViewController) {
@@ -136,7 +138,7 @@ class ViewController: UIViewController {
             friendCodeInput = (alert?.textFields![0].text)! // Force unwrapping because we know it exists.
 
             print("friend code input: \(friendCodeInput)")
-            let ret = self.mPeerNode!.addFriend(friendCode: friendCodeInput, summary: "test")
+            let ret = self.mPeerNode!.addFriend(friendCode: friendCodeInput, summary: "{\"serviceName\":\"test\",\"content\":\"hello\"}")
             print("ret: \(ret)")
         }))
 
