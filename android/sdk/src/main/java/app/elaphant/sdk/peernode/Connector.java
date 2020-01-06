@@ -1,6 +1,8 @@
 package app.elaphant.sdk.peernode;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -15,7 +17,11 @@ public final class Connector {
 
     public Connector(String serviceName) {
         mPeerNode = PeerNode.getInstance();
-        mServiceName = serviceName;
+        if (serviceName == null || serviceName.isEmpty()) {
+            mServiceName = PeerNode.CHAT_SERVICE_NAME;
+        } else {
+            mServiceName = serviceName;
+        }
     }
 
     public void finalize() {
@@ -54,9 +60,23 @@ public final class Connector {
         mDataListener = null;
     }
 
+    public Contact.UserInfo getUserInfo() {
+        return mPeerNode.getUserInfo();
+    }
+
     public int addFriend(String friendCode, String summary) {
         if (mPeerNode == null) return -1;
-        return mPeerNode.addFriend(friendCode, summary);
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("serviceName", mServiceName);
+            json.put("content", summary);
+            return mPeerNode.addFriend(friendCode, json.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
     }
 
     public int removeFriend(String friendCode) {
@@ -94,8 +114,18 @@ public final class Connector {
         return mPeerNode.getFriendStatus(friendCode);
     }
 
-    public int sendMessage(String friendCode, Contact.Message message) {
+    public int sendMessage(String friendCode, String message) {
         if (mPeerNode == null) return -1;
-        return mPeerNode.sendMessage(friendCode, message);
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("serviceName", mServiceName);
+            json.put("content", message);
+            return mPeerNode.sendMessage(friendCode, Contact.MakeTextMessage(json.toString(), null));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
     }
 }

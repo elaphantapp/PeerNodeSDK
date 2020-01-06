@@ -1,27 +1,14 @@
 package app.elaphant.sdk.peernode.test;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Process;
-import android.preference.DialogPreference;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -33,20 +20,8 @@ import org.elastos.sdk.keypair.ElastosKeypair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 
-import com.google.gson.Gson;
 
 import app.elaphant.sdk.peernode.Connector;
 import app.elaphant.sdk.peernode.PeerNode;
@@ -137,6 +112,9 @@ public class MainActivity extends Activity {
             return createConnector();
         } else if (item.getItemId() == R.id.send_msg) {
             return sendMessage();
+        } else if (item.getItemId() == R.id.add_friend) {
+            addFriend();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -234,7 +212,7 @@ public class MainActivity extends Activity {
                 String message = edit.getText().toString().trim();
                 if (message.isEmpty()) return;
 
-                mConnector.sendMessage(friendCode, Contact.MakeTextMessage(message, null));
+                mConnector.sendMessage(friendCode, message);
             }
         });
         builder.create().show();
@@ -246,12 +224,6 @@ public class MainActivity extends Activity {
             case FriendRequest:
                 Contact.Listener.RequestEvent requestEvent = (Contact.Listener.RequestEvent) event;
                 String summary = requestEvent.summary;
-                try {
-                    JSONObject json = new JSONObject(requestEvent.summary);
-                    summary = json.getString("content");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
                 text = requestEvent.humanCode + " request friend, said: " + summary;
                 mConnector.acceptFriend(requestEvent.humanCode);
                 break;
@@ -293,5 +265,29 @@ public class MainActivity extends Activity {
                 mError.setText(text);
             }
         });
+    }
+
+    private void addFriend() {
+        final EditText edit = new EditText(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Input DID");
+
+        builder.setView(edit);
+        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String friendCode = edit.getText().toString().trim();
+                if (friendCode.isEmpty()) return;
+
+                mConnector.addFriend(friendCode, "hello");
+            }
+        });
+        builder.create().show();
     }
 }

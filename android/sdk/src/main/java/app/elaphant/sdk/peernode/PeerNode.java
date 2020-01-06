@@ -14,6 +14,7 @@ import java.util.Map;
 
 public final class PeerNode {
     private static final String TAG = PeerNode.class.getName();
+    public static String CHAT_SERVICE_NAME = "chat";
 
     private static PeerNode sInstance = null;
 
@@ -42,9 +43,11 @@ public final class PeerNode {
                 if (event.type == EventArgs.Type.FriendRequest) {
                     synchronized (mMessageListeners) {
                         RequestEvent requestEvent = (RequestEvent) event;
-                        List<PeerNodeListener.MessageListener> listeners = findMsgListener(requestEvent.summary);
+                        StringBuffer content = new StringBuffer();
+                        List<PeerNodeListener.MessageListener> listeners = findMsgListener(requestEvent.summary, content);
                         if (listeners == null) return;
 
+                        requestEvent.summary = content.toString();
                         for (PeerNodeListener.MessageListener listener : listeners) {
                             listener.onEvent(event);
                         }
@@ -69,11 +72,12 @@ public final class PeerNode {
 
                 if (message.type == Contact.Message.Type.MsgText) {
                     synchronized (mMessageListeners) {
-                        List<PeerNodeListener.MessageListener> listeners = findMsgListener(message.data.toString());
+                        StringBuffer content = new StringBuffer();
+                        List<PeerNodeListener.MessageListener> listeners = findMsgListener(message.data.toString(), content);
                         if (listeners == null) return;
 
                         for (PeerNodeListener.MessageListener listener : listeners) {
-                            listener.onReceivedMessage(humanCode, channelType, message);
+                            listener.onReceivedMessage(humanCode, channelType, Contact.MakeTextMessage(content.toString(), null));
                         }
                     }
                 }
@@ -113,18 +117,20 @@ public final class PeerNode {
         mContact.setDataListener(contactDataListener);
     }
 
-    private List<PeerNodeListener.MessageListener> findMsgListener(String summary) {
+    private List<PeerNodeListener.MessageListener> findMsgListener(String summary, StringBuffer content) {
         List<PeerNodeListener.MessageListener> lis = null;
         try {
             JSONObject jobj = new JSONObject(summary);
             String name = jobj.getString("serviceName");
+            content.append(jobj.getString("content"));
             lis = mMessageListeners.get(name.toLowerCase());
         } catch (JSONException e) {
             e.printStackTrace();
+            content.append(summary);
         }
 
         if (lis == null) {
-            lis = mMessageListeners.get("elaphantchat");
+            lis = mMessageListeners.get(CHAT_SERVICE_NAME);
         }
         return lis;
     }
