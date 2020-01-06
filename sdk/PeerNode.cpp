@@ -38,8 +38,11 @@ void PeerNode::ContactListener::onEvent(ContactListener::EventArgs& event)
     case ElaphantContact::Listener::EventType::FriendRequest:
     {
         auto requestEvent = dynamic_cast<ElaphantContact::Listener::RequestEvent*>(&event);
-        auto listeners = FindListener(requestEvent->summary);
+        std::string content;
+        auto listeners = FindListener(requestEvent->summary, content);
         if (listeners.size() == 0) return;
+
+        requestEvent->summary = content;
         for (auto const& listener : listeners) {
             listener->onEvent(event);
         }
@@ -65,10 +68,11 @@ void PeerNode::ContactListener::onReceivedMessage(const std::string& humanCode,
                         std::shared_ptr<ElaphantContact::Message> msgInfo)
 {
     if (msgInfo->type == ElaphantContact::Message::Type::MsgText) {
-        auto listeners = FindListener(msgInfo->data->toString());
+        std::string content;
+        auto listeners = FindListener(msgInfo->data->toString(), content);
         if (listeners.size() == 0) return;
         for (auto const& listener : listeners) {
-            listener->onReceivedMessage(humanCode, channelType, msgInfo);
+            listener->onReceivedMessage(humanCode, channelType, ElaphantContact::MakeTextMessage(content));
         }
 
     }
@@ -89,13 +93,15 @@ void PeerNode::ContactListener::onError(int errCode, const std::string& errStr, 
     return listener->onError(errCode, errStr, ext);
 }
 
-std::vector<std::shared_ptr<PeerListener::MessageListener>> PeerNode::ContactListener::FindListener(const std::string& content)
+std::vector<std::shared_ptr<PeerListener::MessageListener>> PeerNode::ContactListener::FindListener(
+            const std::string& content, std::string& out)
 {
     std::unique_lock<std::mutex> _lock(mNode->mMsgListenerMutex);
 
     try {
         Json json = Json::parse(content);
         std::string name = toLower(json["serviceName"]);
+        out = json["content"];
         auto listeners = mNode->mMsgListenerMap.find(name);
 
         if (listeners != mNode->mMsgListenerMap.end()) {
@@ -103,9 +109,10 @@ std::vector<std::shared_ptr<PeerListener::MessageListener>> PeerNode::ContactLis
         }
     } catch (const std::exception& e) {
         printf("parse json failed\n");
+        out = content;
     }
 
-    auto ims = mNode->mMsgListenerMap.find("elaphantchat");
+    auto ims = mNode->mMsgListenerMap.find(CHAT_SERVICE_NAME);
     if (ims != mNode->mMsgListenerMap.end()) {
         return ims->second;
     }
