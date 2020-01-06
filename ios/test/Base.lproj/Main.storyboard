@@ -68,6 +68,14 @@
                                             <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tAO-l5-WXH"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" tag="102" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zJS-ou-dTi">
+                                        <rect key="frame" x="8" y="80" width="208" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="Add Friend"/>
+                                        <connections>
+                                            <action selector="onOptionsItemSelected:" destination="BYZ-38-t0r" eventType="touchUpInside" id="miT-cq-Q4g"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                 <viewLayoutGuide key="safeArea" id="l3z-ob-ToF"/>
