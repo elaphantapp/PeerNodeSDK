@@ -14,15 +14,15 @@ class ViewController: UIViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    
+
     // Do any additional setup after loading the view.
-    
+
     let devId = getDeviceId()
     Log.i(tag: ViewController.TAG, msg: "Device ID:" + devId)
-    
+
     let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
     mPeerNode = PeerNode.GetInstance(path: cacheDir!.path, deviceId: getDeviceId())
-    
+
     mPeerNodeListener = {
       class Impl: PeerNodeListener.Listener {
         init(_ vc: ViewController) {
@@ -57,14 +57,16 @@ class ViewController: UIViewController {
       showError("Failed to start PeerNode. ret = \(ret)")
     }
     showMessage("Success to start PeerNode.")
+
+    createConnector()
   }
-  
+
   private func createConnector() {
     if (mConnector != nil) {
       return;
     }
-    
-    mConnector = Connector(serviceName: "Test")
+
+    mConnector = Connector(serviceName: "test")
     mMsgListener = {
       class Impl: PeerNodeListener.MessageListener {
         init(_ vc: ViewController) {
@@ -93,7 +95,7 @@ class ViewController: UIViewController {
     }()
     mConnector!.setMessageListener(listener: mMsgListener!)
   }
-  
+
   private func sendMessage() {
     if (mConnector == nil) {
       showToast("please create connector first!")
@@ -121,19 +123,41 @@ class ViewController: UIViewController {
 
   }
 
-  
+    private func requestToAddFriend() {
+        print("*** requestToAddFriend()")
+
+        var friendCodeInput = ""
+
+        let alert = UIAlertController(title: "Friend Code", message: "Please type a friend code", preferredStyle: .alert)
+
+        alert.addTextField { (textField) in
+            textField.text = self.mCarrierAddress2
+        }
+
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alert] (_) in
+            friendCodeInput = (alert?.textFields![0].text)! // Force unwrapping because we know it exists.
+
+            print("friend code input: \(friendCodeInput)")
+            let ret = self.mPeerNode!.addFriend(friendCode: friendCodeInput, summary: "{\"serviceName\":\"test\",\"content\":\"hello\"}")
+            print("ret: \(ret)")
+        }))
+
+        self.present(alert, animated: true, completion: nil)
+    }
+
   @IBAction func onOptionsMenuTapped(_ sender: Any) {
     optionsMenu.isHidden = !optionsMenu.isHidden
   }
-  
+
   @IBAction func onOptionsItemSelected(_ sender: UIButton) {
     optionsMenu.isHidden = true
 
     enum ButtonTag: Int {
       case create_service = 100
       case send_msg = 101
+        case add_friend = 102
     }
-    
+
     switch sender.tag {
     case ButtonTag.create_service.rawValue:
       createConnector()
@@ -141,6 +165,9 @@ class ViewController: UIViewController {
     case ButtonTag.send_msg.rawValue:
       sendMessage()
       break
+    case ButtonTag.add_friend.rawValue:
+        requestToAddFriend()
+        break
     default:
       fatalError("Button [\(sender.currentTitle!)(\(sender.tag))] not decleared.")
     }
@@ -148,7 +175,7 @@ class ViewController: UIViewController {
 
   private func processAcquire(request: Contact.Listener.AcquireArgs) -> Data? {
     var response: Data?
-  
+
     switch (request.type) {
       case .PublicKey:
         response = mPublicKey.data(using: .utf8)
@@ -169,7 +196,7 @@ class ViewController: UIViewController {
         response = signData(data: request.data)
         break
     }
-  
+
     return response
   }
 
@@ -198,7 +225,7 @@ class ViewController: UIViewController {
         break
     }
   }
-  
+
   private func getAgentAuthHeader() -> Data {
     let appid = "org.elastos.debug.didplugin"
     //let appkey = "b2gvzUM79yLhCbbGNWCuhSsGdqYhA7sS"
@@ -206,42 +233,42 @@ class ViewController: UIViewController {
     let auth = Utils.getMD5Sum(str: "appkey\(timestamp)")
     let headerValue = "id=\(appid)time=\(timestamp)auth=\(auth)"
     Log.i(tag: ViewController.TAG, msg: "getAgentAuthHeader() headerValue=" + headerValue)
-  
+
     return headerValue.data(using: .utf8)!
   }
-  
+
   private func signData(data: Data?) -> Data? {
     if data == nil {
       return nil
     }
-    
+
     var signedData = Data()
     let ret = Contact.Debug.Keypair.Sign(privateKey: mPrivateKey, data: data!, signedData: &signedData)
     if(ret < 0) {
       showMessage(ViewController.ErrorPrefix + "Failed to call Contact.Debug.Keypair.Sign()")
       return nil
     }
-  
+
     return signedData
   }
-  
+
   private func getDeviceId() -> String {
     let devId = UIDevice.current.identifierForVendor?.uuidString
     return devId!
   }
-  
+
   private func showMessage(_ msg: String) {
     Log.i(tag: ViewController.TAG, msg: "\(msg)")
-    
+
     DispatchQueue.main.async { [weak self] in
       self?.msgLog.text = msg
     }
-    
+
     if msg.hasPrefix(ViewController.ErrorPrefix) {
       showToast(msg)
     }
   }
-  
+
   private func showEvent(_ newMsg: String) {
     print("\(newMsg)")
     DispatchQueue.main.async { [weak self] in
@@ -249,7 +276,7 @@ class ViewController: UIViewController {
       self?.eventLog.text += newMsg
     }
   }
-  
+
   private func showError(_ newErr: String) {
     Log.e(tag: ViewController.TAG, msg: newErr)
 
@@ -263,35 +290,54 @@ class ViewController: UIViewController {
     alert.view.backgroundColor = UIColor.black
     alert.view.alpha = 0.6
     alert.view.layer.cornerRadius = 15
-    
+
     DispatchQueue.main.async { [weak self] in
       self?.present(alert, animated: false)
     }
-    
+
     DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
       alert.dismiss(animated: true)
     }
   }
-//  
+//
 //  private func isEnglishWords(_ words: String?) -> Bool {
 //    guard (words?.count ?? -1) > 0 else {
 //      return false
 //    }
-//    
+//
 //    let isEnglish = (words!.range(of: "[^a-zA-Z ]", options: .regularExpression) == nil)
 //    return isEnglish
 //  }
-  
+
   @IBOutlet weak var optionsMenu: UIScrollView!
   @IBOutlet weak var errLog: UITextView!
   @IBOutlet weak var msgLog: UITextView!
   @IBOutlet weak var eventLog: UITextView!
-  
+
 //  private var mCacheDir: URL?
-//  private var mSavedMnemonic = "tail life decide leaf grace knee point topple napkin flavor orbit marble"
-  private var mPublicKey = "02ad88ba403b4d1846ba94584aa56aab17e7de540673e8c4af765125a927209dee"
-  private var mPrivateKey = "ecac0e201cda97406d14cb42d02392906a4e560ca52ab7ca53c772bf45abd0db"
-  
+
+  // DID 1
+  private let mSavedMnemonic = "tail life decide leaf grace knee point topple napkin flavor orbit marble"
+  private let mPublicKey = "02ad88ba403b4d1846ba94584aa56aab17e7de540673e8c4af765125a927209dee"
+  private let mPrivateKey = "ecac0e201cda97406d14cb42d02392906a4e560ca52ab7ca53c772bf45abd0db"
+  private let mCarrierAddress = "9N3C8AuXfEHXvWGz5VR9nU8rN3n32XhtG3NW2X54KKF7tVan2NVG"
+  private let mDID = "igHshxN1dApFu2y7xCDyQenpiYJ8Cjc9XA"
+
+  private let mCarrierAddress2 = "MD7RNZMEmt134yWjp3byby5RtsxPJkBqEZcgHRVtCPmB9cuu4u3M"
+  private let mDID2 = "iemYy4qMieiZzJDb7uZDvEDnvko8yepN2y"
+
+/*
+    // DID 2
+    private let mSavedMnemonic = "shoot island position soft burden budget tooth cruel issue economy destroy above"
+    private let mPublicKey = "024bd8342acbfac4582705e93b573f5c01de16425b7f42f3d9f8892cefe32fa7af"
+    private let mPrivateKey = "1daf5ce87ed1114ed9f6e3417b4c3031ce048ece44c286d3c646a2ecee9c40a4"
+    private let mCarrierAddress = "MD7RNZMEmt134yWjp3byby5RtsxPJkBqEZcgHRVtCPmB9cuu4u3M"
+    private let mDID = "iemYy4qMieiZzJDb7uZDvEDnvko8yepN2y"
+
+    private let mCarrierAddress2 = "9N3C8AuXfEHXvWGz5VR9nU8rN3n32XhtG3NW2X54KKF7tVan2NVG"
+    private let mDID2 = "igHshxN1dApFu2y7xCDyQenpiYJ8Cjc9XA"
+*/
+
   private var mPeerNode: PeerNode?
   private var mPeerNodeListener: PeerNodeListener.Listener?
 //  private var mContactDataListener: Contact.DataListener?
@@ -299,7 +345,7 @@ class ViewController: UIViewController {
   private var mConnector: Connector?
   private var mMsgListener: PeerNodeListener.MessageListener?
 
-  
+
 //  private var mContactRecvFileMap = [String: Contact.Message.FileData]()
 //  private var mContactSendFileMap = [String: String]()
 //
