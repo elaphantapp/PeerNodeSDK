@@ -4,7 +4,8 @@
 
     <item android:id="@+id/create_service"
         android:title="Create Service" />
-
+    <item android:id="@+id/add_friend"
+        android:title="Add Friend" />
     <item android:id="@+id/send_msg"
         android:title="Send Message" />
 

@@ -7,6 +7,8 @@
 #include "PeerListener.h"
 #include "Contact.hpp"
 
+#define CHAT_SERVICE_NAME   "chat"
+
 namespace elastos {
 
 class PeerNode {
@@ -30,7 +32,7 @@ private:
         virtual void onError(int errCode, const std::string& errStr,
                              const std::string& ext) override;
     private:
-        std::vector<std::shared_ptr<PeerListener::MessageListener>> FindListener(const std::string& content);
+        std::vector<std::shared_ptr<PeerListener::MessageListener>> FindListener(const std::string& content, std::string& out);
 
     private:
         PeerNode* mNode;

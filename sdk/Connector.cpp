@@ -6,6 +6,9 @@ namespace elastos {
 Connector::Connector(const std::string& serviceName)
     : mServiceName(serviceName)
 {
+    if (mServiceName.empty()) {
+        mServiceName = CHAT_SERVICE_NAME;
+    }
     mPeerNode = PeerNode::GetInstance();
 }
 
@@ -60,7 +63,11 @@ int Connector::AddFriend(const std::string& friendCode, const std::string& summa
         return -1;
     }
 
-    return mPeerNode->AddFriend(friendCode, summary);
+    Json json;
+    json["serviceName"] = mServiceName;
+    json["content"] = summary;
+
+    return mPeerNode->AddFriend(friendCode, json.dump());
 }
 
 int Connector::RemoveFriend(const std::string& friendCode)
@@ -150,7 +157,11 @@ int Connector::SendMessage(const std::string& friendCode, const std::string& mes
         return -1;
     }
 
-    return mPeerNode->SendMessage(friendCode, message);
+    Json json;
+    json["serviceName"] = mServiceName;
+    json["content"] = message;
+
+    return mPeerNode->SendMessage(friendCode, json.dump());
 }
 
 
