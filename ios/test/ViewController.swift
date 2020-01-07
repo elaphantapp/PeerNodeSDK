@@ -67,7 +67,7 @@ class ViewController: UIViewController {
       return;
     }
 
-    mConnector = Connector(serviceName: "test")
+    mConnector = Connector(serviceName: "elaphantchat")
     mMsgListener = {
       class Impl: PeerNodeListener.MessageListener {
         init(_ vc: ViewController) {
@@ -106,8 +106,6 @@ class ViewController: UIViewController {
     let friendCodeList = mConnector!.listFriendCode()
     Helper.showFriendList(view: self, friendList: friendCodeList, listener:  { friendCode in
       Helper.showTextSendMessage(view: self, friendCode: friendCode!, listener:  { message in
-        let msgInfo = Contact.MakeTextMessage(text: message!, cryptoAlgorithm: nil)
-
         let status = self.mConnector!.getFriendStatus(friendCode: friendCode!)
         if(status != Contact.Status.Online) {
           self.showMessage(ViewController.ErrorPrefix + "Friend is not online.")
@@ -115,7 +113,7 @@ class ViewController: UIViewController {
         }
 
         let ret = self.mConnector!.sendMessage(friendCode: friendCode!,
-                                               message: msgInfo)
+                                               message: message!)
         if(ret < 0) {
           self.showMessage(ViewController.ErrorPrefix + "Failed to send message to " + friendCode!)
         }
@@ -132,7 +130,7 @@ class ViewController: UIViewController {
         let alert = UIAlertController(title: "Friend Code", message: "Please type a friend code", preferredStyle: .alert)
 
         alert.addTextField { (textField) in
-            textField.text = self.mCarrierAddress2
+//            textField.text = self.mCarrierAddress2
         }
 
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alert] (_) in
@@ -335,14 +333,16 @@ class ViewController: UIViewController {
 //  private var mCacheDir: URL?
 
   // DID 1
-  private let mSavedMnemonic = "tail life decide leaf grace knee point topple napkin flavor orbit marble"
-  private let mPublicKey = "02ad88ba403b4d1846ba94584aa56aab17e7de540673e8c4af765125a927209dee"
-  private let mPrivateKey = "ecac0e201cda97406d14cb42d02392906a4e560ca52ab7ca53c772bf45abd0db"
-  private let mCarrierAddress = "9N3C8AuXfEHXvWGz5VR9nU8rN3n32XhtG3NW2X54KKF7tVan2NVG"
-  private let mDID = "igHshxN1dApFu2y7xCDyQenpiYJ8Cjc9XA"
+//  private let mSavedMnemonic = "advance script timber immense increase gap wedding message awkward vote melt destroy"
+//  private let mPublicKey = "020ef0472d42c9779961b88cb38ba65e270102cf6e9e1f67f1574c63cbdc0ca81b"
+//  private let mPrivateKey = "f66583200f6e5dff023a323d07c8c4e5925572a056ea28930822ab56429a44d4"
+//  private let mCarrierAddress = "9N3C8AuXfEHXvWGz5VR9nU8rN3n32XhtG3NW2X54KKF7tVan2NVG"
+//  private let mDID = "iqyzac2ZZh6NRmUWC8zUrvZ2rfntDo6PJe"
 
-  private let mCarrierAddress2 = "MD7RNZMEmt134yWjp3byby5RtsxPJkBqEZcgHRVtCPmB9cuu4u3M"
-  private let mDID2 = "iemYy4qMieiZzJDb7uZDvEDnvko8yepN2y"
+//  private let mCarrierAddress2 = "MD7RNZMEmt134yWjp3byby5RtsxPJkBqEZcgHRVtCPmB9cuu4u3M"
+//  private let mDID2 = "iemYy4qMieiZzJDb7uZDvEDnvko8yepN2y"
+    private let mPublicKey = "02ce1e16f2e0f584cc0cca8354ebe703049eb8317f503d836a7d91744754ca0469"
+    private let mPrivateKey = "3e444ded5c1ee80f1cc3b5845cac4cb4d72f0f5a7cb31882a2950902753b3e1a"
 
 /*
     // DID 2

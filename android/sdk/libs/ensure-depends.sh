@@ -19,11 +19,12 @@ fi
 
 CONTACT_AARS=("crosspl-lib" "Elastos.SDK.Contact");
 for aar in ${CONTACT_AARS[@]}; do
-    if [ ! -f ".$aar.unpacked" ]; then
+    unpacked=".$aar-${CONTACT_VERSION}.unpacked";
+    if [ ! -f "$unpacked" ]; then
         echo "Unpacking $aar...";
-        rm "$aar-*.aar";
+        rm -f $aar-*.aar;
         unzip $CONTACT_ZIPNAME "$aar-*.aar";
-        touch ".$aar.unpacked";
+        touch "$unpacked";
     else
         echo "$aar exists.";
     fi
