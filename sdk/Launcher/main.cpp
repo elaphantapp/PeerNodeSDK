@@ -7,6 +7,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <iostream>
+#include <fstream>
 #include "PeerNode.h"
 #include "Elastos.Wallet.Utility.h"
 
@@ -21,7 +22,33 @@ std::mutex mutex;
 bool serviceRunning = false;
 std::shared_ptr<elastos::PeerNode> gPeerNode;
 
-int InitPeerNode(const std::string& path, const std::string& privateKey, const char* publicKey)
+int WriteToFile(const std::string& path, const char* data, std::size_t size) {
+    std::string tmp_path(path);
+    tmp_path.append(".tmp");
+
+    std::ofstream ofs(tmp_path, std::ios::binary);
+    if (ofs.is_open() == false) {
+        fprintf(stderr, "Failed to write to file: can't open %s.", path.c_str());
+        return -1;
+    }
+
+    ofs.write(data, size);
+
+    ofs.flush();
+    ofs.close();
+
+    // rename tmp ==> path
+    int ret = std::rename(tmp_path.c_str(), path.c_str());
+    if (ret < 0) {
+        fprintf(stderr, "Failed to write to file: %s, err=%d", path.c_str(), ret);
+        return ret;
+    }
+
+    return 0;
+}
+
+int InitPeerNode(const std::string& path, const std::string& privateKey, const char* publicKey,
+                 const std::string& infoPath)
 {
     gPeerNode = elastos::PeerNode::GetInstance(path);
     if (gPeerNode.get() == nullptr) {
@@ -90,7 +117,46 @@ int InitPeerNode(const std::string& path, const std::string& privateKey, const c
     gPeerNode->SetListener(listener);
 
     auto ret = gPeerNode->Start();
-    gPeerNode->SyncInfoUploadToDidChain();
+    if(ret < 0) {
+        fprintf(stderr, "Error: Failed to start PeerNode\n");
+        return ret;
+    }
+
+    ret = gPeerNode->SyncInfoUploadToDidChain();
+    if(ret < 0) {
+        fprintf(stderr, "Error: Failed to sync info upload to DidChain\n");
+        return ret;
+    }
+
+    if(infoPath.empty() == false) {
+        printf("Save user info to %s\n", infoPath.c_str());
+
+        auto userInfo = gPeerNode->GetUserInfo();
+        std::string did;
+        std::string carrierAddr;
+        ret = userInfo->getHumanInfo(ElaphantContact::UserInfo::Item::Did, did);
+        if(ret < 0) {
+            fprintf(stderr, "Error: Failed to get user did\n");
+        }
+        ret = userInfo->getCurrDevCarrierAddr(carrierAddr);
+        if(ret < 0) {
+            fprintf(stderr, "Error: Failed to get current device CarrierAddr\n");
+        }
+
+        std::stringstream sstream;
+        sstream << "{";
+        sstream << "Did:" << did;
+        sstream << ",";
+        sstream << "CarrierAddr:" << carrierAddr;
+        sstream << "}";
+
+        std::string info = sstream.str();
+        ret = WriteToFile(infoPath, info.data(), info.length());
+        if(ret < 0) {
+            fprintf(stderr, "Error: Failed to save info to %s\n", infoPath.c_str());
+        }
+    }
+
     return ret;
 }
 
@@ -153,6 +219,7 @@ int main(int argc, char* argv[])
     std::string library;
     std::string path;
     std::string privateKey;
+    std::string infoPath;
     char* publicKey = nullptr;
 
     static struct option long_options[] =
@@ -160,13 +227,14 @@ int main(int argc, char* argv[])
         {"name", required_argument, NULL, 'n'},
         {"path", required_argument, NULL, 'p'},
         {"key", required_argument, NULL, 'k'},
+        {"infopath", required_argument, NULL, 'i'},
         {"help", no_argument, NULL, 'h'},
         {0, 0, 0, 0}
     };
 
     while(1) {
         int opt_index = 0;
-        c = getopt_long(argc, argv, "n:p:k:h", long_options, &opt_index);
+        c = getopt_long(argc, argv, "n:p:k:i:h", long_options, &opt_index);
 
         if (-1 == c) {
             break;
@@ -184,6 +252,10 @@ int main(int argc, char* argv[])
             case 'k':
                 printf("param k: %s\n", argv[optind]);
                 privateKey = argv[optind];
+                break;
+            case 'i':
+                printf("param i: %s\n", argv[optind]);
+                infoPath = argv[optind];
                 break;
             default:
                 printf("param default: %s\n", argv[optind]);
@@ -213,7 +285,7 @@ int main(int argc, char* argv[])
     }
 
     char* did = getDid(publicKey);
-    auto ret = InitPeerNode(path, privateKey, publicKey);
+    auto ret = InitPeerNode(path, privateKey, publicKey, infoPath);
     if (ret != 0) {
         printf("Init peer node failed\n");
         free(publicKey);

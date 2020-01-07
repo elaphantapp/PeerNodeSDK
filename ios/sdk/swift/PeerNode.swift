@@ -11,7 +11,8 @@ import ContactSDK
 
 open class PeerNode {  
   static var sInstance: PeerNode?
-
+  public static let CHAT_SERVICE_NAME = "chat";
+  
   private var mContact: Contact
   private var mListener: PeerNodeListener.Listener? = nil
   private var mMessageListeners = [String: [PeerNodeListener.MessageListener]]()
@@ -20,7 +21,7 @@ open class PeerNode {
   public static func WithLock(lock: Any?, f: () -> Void) {
     objc_sync_enter(lock ?? self)
     f()
-    objc_sync_enter(lock ?? self)
+    objc_sync_exit(lock ?? self)
   }
   
   init (path: String, deviceId: String) {
@@ -46,6 +47,7 @@ open class PeerNode {
 
         override func onEvent(event: EventArgs) {
           if (peerNode.mMessageListeners.count == 0) {
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
             return
           }
           

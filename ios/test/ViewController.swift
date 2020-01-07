@@ -9,6 +9,7 @@
 import UIKit
 import ContactSDK
 import PeerNodeSDK
+import CommonCrypto
 
 class ViewController: UIViewController {
 
@@ -18,7 +19,7 @@ class ViewController: UIViewController {
     // Do any additional setup after loading the view.
 
     let devId = getDeviceId()
-    Log.i(tag: ViewController.TAG, msg: "Device ID:" + devId)
+    print("Device ID:" + devId)
 
     let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
     mPeerNode = PeerNode.GetInstance(path: cacheDir!.path, deviceId: getDeviceId())
@@ -66,7 +67,7 @@ class ViewController: UIViewController {
       return;
     }
 
-    mConnector = Connector(serviceName: "test")
+    mConnector = Connector(serviceName: "elaphantchat")
     mMsgListener = {
       class Impl: PeerNodeListener.MessageListener {
         init(_ vc: ViewController) {
@@ -105,8 +106,6 @@ class ViewController: UIViewController {
     let friendCodeList = mConnector!.listFriendCode()
     Helper.showFriendList(view: self, friendList: friendCodeList, listener:  { friendCode in
       Helper.showTextSendMessage(view: self, friendCode: friendCode!, listener:  { message in
-        let msgInfo = Contact.MakeTextMessage(text: message!, cryptoAlgorithm: nil)
-
         let status = self.mConnector!.getFriendStatus(friendCode: friendCode!)
         if(status != Contact.Status.Online) {
           self.showMessage(ViewController.ErrorPrefix + "Friend is not online.")
@@ -114,7 +113,7 @@ class ViewController: UIViewController {
         }
 
         let ret = self.mConnector!.sendMessage(friendCode: friendCode!,
-                                               message: msgInfo)
+                                               message: message!)
         if(ret < 0) {
           self.showMessage(ViewController.ErrorPrefix + "Failed to send message to " + friendCode!)
         }
@@ -131,7 +130,7 @@ class ViewController: UIViewController {
         let alert = UIAlertController(title: "Friend Code", message: "Please type a friend code", preferredStyle: .alert)
 
         alert.addTextField { (textField) in
-            textField.text = self.mCarrierAddress2
+//            textField.text = self.mCarrierAddress2
         }
 
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alert] (_) in
@@ -230,9 +229,9 @@ class ViewController: UIViewController {
     let appid = "org.elastos.debug.didplugin"
     //let appkey = "b2gvzUM79yLhCbbGNWCuhSsGdqYhA7sS"
     let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
-    let auth = Utils.getMD5Sum(str: "appkey\(timestamp)")
+    let auth = getMD5Sum(str: "appkey\(timestamp)")
     let headerValue = "id=\(appid)time=\(timestamp)auth=\(auth)"
-    Log.i(tag: ViewController.TAG, msg: "getAgentAuthHeader() headerValue=" + headerValue)
+    print("getAgentAuthHeader() headerValue=" + headerValue)
 
     return headerValue.data(using: .utf8)!
   }
@@ -256,10 +255,27 @@ class ViewController: UIViewController {
     let devId = UIDevice.current.identifierForVendor?.uuidString
     return devId!
   }
-
+  
+  private func getMD5Sum(str: String) -> String {
+    let length = Int(CommonCrypto.CC_MD5_DIGEST_LENGTH)
+    let messageData = str.data(using: .utf8)!
+    var digestData = Data(count: length)
+    
+    _ = digestData.withUnsafeMutableBytes { digestBytes -> UInt8 in
+      messageData.withUnsafeBytes { messageBytes -> UInt8 in
+        if let messageBytesBaseAddress = messageBytes.baseAddress, let digestBytesBlindMemory = digestBytes.bindMemory(to: UInt8.self).baseAddress {
+          let messageLength = CC_LONG(messageData.count)
+          CC_MD5(messageBytesBaseAddress, messageLength, digestBytesBlindMemory)
+        }
+        return 0
+      }
+    }
+    return digestData.map { String(format: "%02hhx", $0) }.joined()
+  }
+  
   private func showMessage(_ msg: String) {
-    Log.i(tag: ViewController.TAG, msg: "\(msg)")
-
+    print(msg)
+    
     DispatchQueue.main.async { [weak self] in
       self?.msgLog.text = msg
     }
@@ -270,7 +286,7 @@ class ViewController: UIViewController {
   }
 
   private func showEvent(_ newMsg: String) {
-    print("\(newMsg)")
+    print(newMsg)
     DispatchQueue.main.async { [weak self] in
       self?.eventLog.text += "\n"
       self?.eventLog.text += newMsg
@@ -278,7 +294,7 @@ class ViewController: UIViewController {
   }
 
   private func showError(_ newErr: String) {
-    Log.e(tag: ViewController.TAG, msg: newErr)
+    print(newErr)
 
     DispatchQueue.main.async { [weak self] in
       self?.errLog.text = newErr
@@ -317,14 +333,16 @@ class ViewController: UIViewController {
 //  private var mCacheDir: URL?
 
   // DID 1
-  private let mSavedMnemonic = "tail life decide leaf grace knee point topple napkin flavor orbit marble"
-  private let mPublicKey = "02ad88ba403b4d1846ba94584aa56aab17e7de540673e8c4af765125a927209dee"
-  private let mPrivateKey = "ecac0e201cda97406d14cb42d02392906a4e560ca52ab7ca53c772bf45abd0db"
-  private let mCarrierAddress = "9N3C8AuXfEHXvWGz5VR9nU8rN3n32XhtG3NW2X54KKF7tVan2NVG"
-  private let mDID = "igHshxN1dApFu2y7xCDyQenpiYJ8Cjc9XA"
+//  private let mSavedMnemonic = "advance script timber immense increase gap wedding message awkward vote melt destroy"
+//  private let mPublicKey = "020ef0472d42c9779961b88cb38ba65e270102cf6e9e1f67f1574c63cbdc0ca81b"
+//  private let mPrivateKey = "f66583200f6e5dff023a323d07c8c4e5925572a056ea28930822ab56429a44d4"
+//  private let mCarrierAddress = "9N3C8AuXfEHXvWGz5VR9nU8rN3n32XhtG3NW2X54KKF7tVan2NVG"
+//  private let mDID = "iqyzac2ZZh6NRmUWC8zUrvZ2rfntDo6PJe"
 
-  private let mCarrierAddress2 = "MD7RNZMEmt134yWjp3byby5RtsxPJkBqEZcgHRVtCPmB9cuu4u3M"
-  private let mDID2 = "iemYy4qMieiZzJDb7uZDvEDnvko8yepN2y"
+//  private let mCarrierAddress2 = "MD7RNZMEmt134yWjp3byby5RtsxPJkBqEZcgHRVtCPmB9cuu4u3M"
+//  private let mDID2 = "iemYy4qMieiZzJDb7uZDvEDnvko8yepN2y"
+    private let mPublicKey = "02ce1e16f2e0f584cc0cca8354ebe703049eb8317f503d836a7d91744754ca0469"
+    private let mPrivateKey = "3e444ded5c1ee80f1cc3b5845cac4cb4d72f0f5a7cb31882a2950902753b3e1a"
 
 /*
     // DID 2

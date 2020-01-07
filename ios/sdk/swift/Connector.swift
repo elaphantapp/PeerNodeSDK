@@ -6,6 +6,7 @@
 //  Copyright © 2019 Elastos. All rights reserved.
 //
 
+import Foundation
 import ContactSDK
 
 open class Connector {
@@ -15,9 +16,13 @@ open class Connector {
   private var mMessagListener: PeerNodeListener.MessageListener? = nil
   private var mDataListener: PeerNodeListener.DataListener? = nil
   
-  public init(serviceName: String) {
+  public init(serviceName: String?) {
     mPeerNode = PeerNode.GetInstance()
-    mServiceName = serviceName
+    if (serviceName == nil || serviceName!.isEmpty) {
+        mServiceName = PeerNode.CHAT_SERVICE_NAME;
+    } else {
+        mServiceName = serviceName!;
+    }
   }
   
   deinit {
@@ -65,8 +70,28 @@ open class Connector {
     mDataListener = nil
   }
   
+  public func getUserInfo() -> Contact.UserInfo? {
+      return mPeerNode?.getUserInfo()
+  }
+  
   public func addFriend(friendCode: String, summary: String) -> Int {
-    return mPeerNode?.addFriend(friendCode: friendCode, summary: summary) ?? -1
+    if (mPeerNode == nil) {
+      return -1
+    }
+
+    do {
+      let data = [
+        "serviceName": mServiceName,
+        "content": summary,
+      ]
+      let encode = try JSONEncoder().encode(data)
+      let val = String(data: encode, encoding: .utf8)!
+      return mPeerNode!.addFriend(friendCode: friendCode, summary: val)
+    } catch {
+      print("make json failed\n")
+    }
+    
+    return -1
   }
 
   public func removeFriend(friendCode: String) -> Int {
@@ -97,9 +122,25 @@ open class Connector {
     return mPeerNode?.getFriendStatus(friendCode: friendCode) ?? Contact.Status.Invalid
   }
   
-  public func sendMessage(friendCode: String, message: Contact.Message) -> Int {
-    return mPeerNode?.sendMessage(friendCode: friendCode,
-                                  message: message) ?? -1
+  public func sendMessage(friendCode: String, message: String) -> Int {
+   if (mPeerNode == nil) {
+     return -1
+   }
+
+   do {
+     let data = [
+       "serviceName": mServiceName,
+       "content": message,
+     ]
+     let encode = try JSONEncoder().encode(data)
+     let val = String(data: encode, encoding: .utf8)!
+     return mPeerNode!.sendMessage(friendCode: friendCode,
+                                   message: Contact.MakeTextMessage(text: val, cryptoAlgorithm: nil))
+   } catch {
+     print("make json failed\n")
+   }
+   
+   return -1
   }
   
 }

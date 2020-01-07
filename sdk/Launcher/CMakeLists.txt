@@ -19,5 +19,7 @@ endif()
 
 install(TARGETS PeerNodeLauncher
         RUNTIME DESTINATION bin)
-install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/PeerNodeLauncher.sh
+install(PROGRAMS PeerNodeLauncher.sh
+        DESTINATION bin)
+install(PROGRAMS PeerNodeManager.sh
         DESTINATION bin)

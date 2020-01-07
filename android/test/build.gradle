@@ -5,10 +5,6 @@ apply from: "$rootProject.projectDir/gradle/android.gradle"
 android {
     defaultConfig {
         minSdkVersion 19
-
-        ndk {
-            abiFilters "armeabi-v7a"//, "arm64-v8a", "x86_64"
-        }
     }
 
 }
