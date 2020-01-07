@@ -145,9 +145,9 @@ int InitPeerNode(const std::string& path, const std::string& privateKey, const c
 
         std::stringstream sstream;
         sstream << "{";
-        sstream << "Did:" << did;
+        sstream << "\"Did\":\"" << did << "\"";
         sstream << ",";
-        sstream << "CarrierAddr:" << carrierAddr;
+        sstream << "\"CarrierAddr\":\"" << carrierAddr << "\"";
         sstream << "}";
 
         std::string info = sstream.str();

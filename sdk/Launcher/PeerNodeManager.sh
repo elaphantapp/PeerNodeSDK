@@ -12,9 +12,10 @@ if [ "$(uname -s)" == "Darwin" ]; then
 fi
 
 export LD_LIBRARY_PATH="$LIB_DIR";
-"$CURRENT_DIR"/PeerNodeLauncher \
+export PATH="$CURRENT_DIR:$PATH";
+PeerNodeLauncher \
     -name "$PLUGIN_DIR/libMicroServiceManager.$PLUGIN_EXT" \
-    -key "02bc11aa5c35acda6f6f219b94742dd9a93c1d11c579f98f7e3da05ad910a48306" \
+    -key  "ada94cfd614014da0fa855630fea2bf85eb1c9aaf687cc8210ff76751bcf4d1a" \
     -path "/tmp/PeerNode/" \
-    -info "/tmp/PeerNode/info.txt";
+    -infopath "/tmp/PeerNode/info.txt";
 
