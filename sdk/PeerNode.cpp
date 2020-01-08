@@ -108,7 +108,7 @@ std::vector<std::shared_ptr<PeerListener::MessageListener>> PeerNode::ContactLis
             return listeners->second;
         }
     } catch (const std::exception& e) {
-        printf("parse json failed\n");
+        printf("parse json failed: %s\n", content.c_str());
         out = content;
     }
 
