@@ -338,7 +338,7 @@ class ViewController: UIViewController {
     private let mPublicKey = "02ce1e16f2e0f584cc0cca8354ebe703049eb8317f503d836a7d91744754ca0469"
     private let mPrivateKey = "3e444ded5c1ee80f1cc3b5845cac4cb4d72f0f5a7cb31882a2950902753b3e1a"
 */
-/*
+
   // DID 1
   private let mSavedMnemonic = "advance script timber immense increase gap wedding message awkward vote melt destroy"
   private let mPublicKey = "020ef0472d42c9779961b88cb38ba65e270102cf6e9e1f67f1574c63cbdc0ca81b"
@@ -348,8 +348,8 @@ class ViewController: UIViewController {
 
   private let mCarrierAddress2 = "MD7RNZMEmt134yWjp3byby5RtsxPJkBqEZcgHRVtCPmB9cuu4u3M"
   private let mDID2 = "iemYy4qMieiZzJDb7uZDvEDnvko8yepN2y"
-*/
 
+/*
     // DID 2
     private let mSavedMnemonic = "shoot island position soft burden budget tooth cruel issue economy destroy above"
     private let mPublicKey = "024bd8342acbfac4582705e93b573f5c01de16425b7f42f3d9f8892cefe32fa7af"
@@ -359,6 +359,7 @@ class ViewController: UIViewController {
 
     private let mCarrierAddress2 = "9N3C8AuXfEHXvWGz5VR9nU8rN3n32XhtG3NW2X54KKF7tVan2NVG"
     private let mDID2 = "igHshxN1dApFu2y7xCDyQenpiYJ8Cjc9XA"
+*/
 
   private var mPeerNode: PeerNode?
   private var mPeerNodeListener: PeerNodeListener.Listener?
