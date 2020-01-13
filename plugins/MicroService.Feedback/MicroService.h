@@ -28,7 +28,7 @@ public:
 public:
     MicroService(const std::string& path)
         : mPath(path)
-        , mName("MicroService")
+        , mName("feedback")
     {
         mConnector = std::make_shared<Connector>(mName);
         mListener = std::shared_ptr<PeerListener::MessageListener>(new MicroService::MessageListener(this));
