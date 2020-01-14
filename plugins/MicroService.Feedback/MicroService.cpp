@@ -57,9 +57,7 @@ void MicroService::MessageListener::onReceivedMessage(const std::string& humanCo
     printf("Serice %s received message from %s content %s\n", mOutter->mName.c_str(),
                         humanCode.c_str(), msgInfo->data->toString().c_str());
 
-    std::stringstream ss;
-    ss << "{\"serviceName\":\"" << mOutter->mName << "\",\"content\":\"hello\"}";
-    mOutter->mConnector->SendMessage(humanCode, ss.str());
+    mOutter->mConnector->SendMessage(humanCode, msgInfo->data->toString());
 }
 
 }
