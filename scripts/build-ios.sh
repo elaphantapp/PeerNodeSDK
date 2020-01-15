@@ -23,9 +23,11 @@ xcodebuild -target "sdk" -configuration "${PROJECT_BUILDTYPE}" -arch arm64  -sdk
 xcodebuild -target "sdk" -configuration "${PROJECT_BUILDTYPE}" -arch x86_64 -sdk "iphonesimulator" \
     CURRENT_PROJECT_VERSION=${PROJECT_REVISION} CURRENT_PROJECT_VERSIONNAME=${PROJECT_VERSION/v/};
 
+rm -rf "$PACKAGE_DIR/"*.framework;
+
 echo "Lipo sdk ...";
 TARGET_SDK="$PACKAGE_DIR/PeerNodeSDK.framework";
-rm -rf "$TARGET_SDK" && mkdir -p "$TARGET_SDK";
+mkdir -p "$TARGET_SDK";
 cp -r "$IOS_DIR/build/${PROJECT_BUILDTYPE}-iphonesimulator/PeerNodeSDK.framework/"* "$TARGET_SDK/";
 cp -r "$IOS_DIR/build/${PROJECT_BUILDTYPE}-iphoneos/PeerNodeSDK.framework/"* "$TARGET_SDK/";
 rm "$TARGET_SDK/PeerNodeSDK";
@@ -34,12 +36,13 @@ lipo -create -output "$TARGET_SDK/PeerNodeSDK" \
 	"$IOS_DIR/build/${PROJECT_BUILDTYPE}-iphoneos/PeerNodeSDK.framework/PeerNodeSDK" \
 	"$IOS_DIR/build/${PROJECT_BUILDTYPE}-iphonesimulator/PeerNodeSDK.framework/PeerNodeSDK";
 
+cp -r "$IOS_DIR/frameworks/"*.framework "$PACKAGE_DIR";
 git tag --force ${PROJECT_VERSION}
 
 TARBALL_PATH="$PACKAGE_DIR/${PROJECT_NAME}-ios-${PROJECT_VERSION}.zip";
 cd $PACKAGE_DIR;
 rm -rf "$TARBALL_PATH";
-zip -r "$TARBALL_PATH" $(basename "$TARGET_SDK");
+zip -r "$TARBALL_PATH" . *.framework;
 
 echo "Done!!!";
 
