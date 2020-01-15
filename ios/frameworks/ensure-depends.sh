@@ -21,7 +21,7 @@ CONTACT_FRAMEWORKS=("CrossPL.framework" "ContactSDK.framework");
 for framework in ${CONTACT_FRAMEWORKS[@]}; do
     if [ ! -f "$framework/.unpacked" ]; then
         echo "Unpacking $framework...";
-        rm -r "$framework";
+        rm -rf "$framework";
         unzip $CONTACT_ZIPNAME "$framework/*";
         touch "$framework/.unpacked";
     else
