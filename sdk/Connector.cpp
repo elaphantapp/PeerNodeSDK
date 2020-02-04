@@ -1,5 +1,6 @@
 
 #include "Connector.h"
+#include "Elastos.Wallet.Utility.h"
 
 namespace elastos {
 
@@ -157,11 +158,20 @@ int Connector::SendMessage(const std::string& friendCode, const std::string& mes
         return -1;
     }
 
-    Json json;
-    json["serviceName"] = mServiceName;
-    json["content"] = message;
+    bool isDid = friendCode.at(0) == 'i' && isAddressValid(friendCode.c_str());
 
-    return mPeerNode->SendMessage(friendCode, json.dump());
+    std::string data;
+    if (isDid) {
+        Json json;
+        json["serviceName"] = mServiceName;
+        json["content"] = message;
+        data = json.dump();
+    }
+    else {
+        data = message;
+    }
+
+    return mPeerNode->SendMessage(friendCode, data);
 }
 
 
