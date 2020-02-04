@@ -127,20 +127,26 @@ open class Connector {
      return -1
    }
 
-   do {
-     let data = [
-       "serviceName": mServiceName,
-       "content": message,
-     ]
-     let encode = try JSONEncoder().encode(data)
-     let val = String(data: encode, encoding: .utf8)!
-     return mPeerNode!.sendMessage(friendCode: friendCode,
-                                   message: Contact.MakeTextMessage(text: val, cryptoAlgorithm: nil))
-   } catch {
-     print("make json failed\n")
-   }
+    var data: String
+    let isDidFriend = ContactSDK.Contact.IsDidFriend(friendCode: friendCode)
+    if (isDidFriend) {
+     do {
+       let json = [
+         "serviceName": mServiceName,
+         "content": message,
+       ]
+       let encode = try JSONEncoder().encode(json)
+       data = String(data: encode, encoding: .utf8)!
+     } catch {
+       print("make json failed\n")
+       return -1
+     }
+    } else {
+      data = message
+    }
    
-   return -1
+    return mPeerNode!.sendMessage(friendCode: friendCode,
+                                  message: Contact.MakeTextMessage(text: data, cryptoAlgorithm: nil))
   }
   
 }

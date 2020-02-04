@@ -117,15 +117,23 @@ public final class Connector {
     public int sendMessage(String friendCode, String message) {
         if (mPeerNode == null) return -1;
 
-        JSONObject json = new JSONObject();
-        try {
-            json.put("serviceName", mServiceName);
-            json.put("content", message);
-            return mPeerNode.sendMessage(friendCode, Contact.MakeTextMessage(json.toString(), null));
-        } catch (JSONException e) {
-            e.printStackTrace();
+        boolean isDidFriend = Contact.IsDidFriend(friendCode);
+
+        String data;
+        if (isDidFriend) {
+            try {
+                JSONObject json = new JSONObject();
+                json.put("serviceName", mServiceName);
+                json.put("content", message);
+                data = json.toString();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return -1;
+            }
+        } else {
+            data = message;
         }
 
-        return -1;
+        return mPeerNode.sendMessage(friendCode, Contact.MakeTextMessage(data, null));
     }
 }
