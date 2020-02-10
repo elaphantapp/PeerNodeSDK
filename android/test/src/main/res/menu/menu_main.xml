@@ -8,6 +8,8 @@
         android:title="Add Friend" />
     <item android:id="@+id/send_msg"
         android:title="Send Message" />
+    <item android:id="@+id/send_notice"
+        android:title="@string/send_notice"/>
 
 
 </menu>

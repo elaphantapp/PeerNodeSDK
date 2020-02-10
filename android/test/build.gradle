@@ -11,6 +11,7 @@ android {
 
 dependencies {
     implementation(project(":sdk"))
+    implementation(project(":pushserver"))
 
     implementation('com.google.zxing:core:3.3.0')
     implementation 'com.github.blikoon:QRCodeScanner:0.1.2'
