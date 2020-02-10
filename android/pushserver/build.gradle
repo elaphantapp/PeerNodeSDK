@@ -1,3 +1,8 @@
 apply plugin: 'com.android.library'
 
 apply from: "$rootProject.projectDir/gradle/android.gradle"
+
+dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:4.3.1'
+    implementation 'com.google.code.gson:gson:2.8.6'
+}

@@ -20,12 +20,17 @@ import org.elastos.sdk.keypair.ElastosKeypair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 
 import app.elaphant.sdk.peernode.Connector;
 import app.elaphant.sdk.peernode.PeerNode;
 import app.elaphant.sdk.peernode.PeerNodeListener;
+import app.elaphant.sdk.pushserver.PushRequest;
+import app.elaphant.sdk.pushserver.PushResponse;
+import app.elaphant.sdk.pushserver.Util;
 
 public class MainActivity extends Activity {
     private static final String TAG = "PeerNodeTest";
@@ -33,6 +38,10 @@ public class MainActivity extends Activity {
     private static final String mnemonic = "ability cloth cannon buddy together theme uniform erase fossil meadow top pumpkin";
     private static final String mPrivateKey = "b8e923f4e5c5a3c704bcc02a90ee0e4fa34a5b8f0dd1de1be4eb2c37ffe8e3ea";
     private static final String mPublicKey = "021e53dc2b8af1548175cba357ae321096065f8d49e3935607bc8844c157bb0859";
+
+    private static final String ANDROID_TEST_APP_KEY = "28334887";
+    private static final String ACCESS_KEY = "LTAI4FmvcqWxDbC8auMVkJ1J";
+    private static final String ACCESS_SECRET = "IdLFBrCKjX0RnOlnyfgs5fvAZ0xebL";
 
     private PeerNode mPeerNode;
 
@@ -114,6 +123,9 @@ public class MainActivity extends Activity {
             return sendMessage();
         } else if (item.getItemId() == R.id.add_friend) {
             addFriend();
+            return true;
+        } else if (item.getItemId() == R.id.send_notice) {
+            sendNotice();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -289,5 +301,47 @@ public class MainActivity extends Activity {
             }
         });
         builder.create().show();
+    }
+
+    private void sendNotice() {
+        PushRequest pushRequest = new PushRequest(ACCESS_KEY, ACCESS_SECRET);
+        pushRequest.setAppKey(ANDROID_TEST_APP_KEY);
+        pushRequest.setTarget("ACCOUNT");
+        pushRequest.setTargetValue("iqsZgRWXMA2uhzJbe2kCF4txJDRsSfJcGL");
+        pushRequest.setPushType("NOTICE");
+        pushRequest.setDeviceType("ALL");
+
+        pushRequest.setTitle("Notice Test");
+        pushRequest.setBody("hello");
+
+        pushRequest.setAndroidNotifyType("BOTH");//通知的提醒方式 "VIBRATE" : 震动 "SOUND" : 声音 "BOTH" : 声音和震动 NONE : 静音
+        pushRequest.setAndroidOpenType("APPLICATION"); //点击通知后动作 "APPLICATION" : 打开应用 "ACTIVITY" : 打开AndroidActivity "URL" : 打开URL "NONE" : 无跳转
+
+        pushRequest.setAndroidNotificationChannel("1");
+
+        String expireTime = Util.getISO8601Time(new Date(System.currentTimeMillis() + 12 * 3600 * 1000)); // 12小时后消息失效, 不会再发送
+        pushRequest.setExpireTime(expireTime);
+        pushRequest.setStoreOffline(true); // 离线消息是否保存,若保存, 在推送时候，用户即使不在线，下一次上线则会收到
+        pushRequest.asyncExecute(new PushRequest.PushCallback() {
+            @Override
+            public void onFailure(PushRequest request, IOException e) {
+                runOnUiThread(()-> {
+                    Toast.makeText(MainActivity.this, "push notice failed", Toast.LENGTH_LONG).show();
+                });
+
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(PushRequest request, PushResponse response) {
+                System.out.printf("RequestId: %s, MessageID: %s\n",
+                        response.getRequestId(), response.getMessageId());
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "push notice succeeded", Toast.LENGTH_LONG).show();
+                });
+
+            }
+        });
+
     }
 }

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PeerNode.Test</string>
+    <string name="send_notice">Send Notice</string>
 </resources>
