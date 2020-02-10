@@ -1,4 +1,5 @@
 rootProject.name = 'PeerNodeSDK'
 
+include ':pushserver'
 include ':sdk'
 include ':test'
