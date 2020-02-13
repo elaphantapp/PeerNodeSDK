@@ -201,25 +201,5 @@ int Connector::SendMessage(const std::string& friendCode, const std::vector<uint
     return mPeerNode->SendMessage(friendCode, data);
 }
 
-int Connector::ExportUserData(const std::string& toFile)
-{
-     if (mPeerNode.get() == nullptr) {
-        printf("PeerNode not created!\n");
-        return -1;
-    }
-
-    return mPeerNode->ExportUserData(toFile);
-}
-
-int Connector::ImportUserData(const std::string& fromFile)
-{
-     if (mPeerNode.get() == nullptr) {
-        printf("PeerNode not created!\n");
-        return -1;
-    }
-
-    return mPeerNode->ImportUserData(fromFile);
-}
-
 
 }

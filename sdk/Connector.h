@@ -36,9 +36,6 @@ public:
     int SendMessage(const std::string& friendCode, const std::string& message);
     int SendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary);
 
-    int ExportUserData(const std::string& toFile);
-    int ImportUserData(const std::string& fromFile);
-
 private:
     void RemoveMessageListener();
     void RemoveDataListener();

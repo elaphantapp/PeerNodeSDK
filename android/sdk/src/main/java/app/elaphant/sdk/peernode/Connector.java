@@ -163,14 +163,4 @@ public final class Connector {
 
         return mPeerNode.sendMessage(friendCode, Contact.MakeBinaryMessage(data, null));
     }
-
-    public int exportUserData(String toFile) {
-        if (mPeerNode == null) return -1;
-        return mPeerNode.exportUserData(toFile);
-    }
-
-    public int importUserData(String fromFile) {
-        if (mPeerNode == null) return -1;
-        return mPeerNode.importUserData(fromFile);
-    }
 }
