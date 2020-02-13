@@ -33,8 +33,15 @@ void ConnectorTest::MessageListener::onEvent(ElaphantContact::Listener::EventArg
 void ConnectorTest::MessageListener::onReceivedMessage(const std::string& humanCode,
                 ElaphantContact::Channel channelType, std::shared_ptr<ElaphantContact::Message> msgInfo)
 {
-    printf("Serice %s received message from %s content %s\n", mOutter->mName.c_str(),
+    if (msgInfo->type == ElaphantContact::Message::Type::MsgText) {
+        printf("Serice %s received message from %s content %s\n", mOutter->mName.c_str(),
                         humanCode.c_str(), msgInfo->data->toString().c_str());
+    }
+    else if (msgInfo->type == ElaphantContact::Message::Type::MsgBinary) {
+        printf("Serice %s received binary message from %s content %s\n", mOutter->mName.c_str(),
+                        humanCode.c_str(), msgInfo->data->toString().c_str());
+    }
+
 }
 
 ConnectorTest::ConnectorTest(const std::string& name)

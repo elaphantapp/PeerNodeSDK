@@ -30,7 +30,6 @@ import app.elaphant.sdk.peernode.PeerNode;
 import app.elaphant.sdk.peernode.PeerNodeListener;
 import app.elaphant.sdk.pushserver.PushRequest;
 import app.elaphant.sdk.pushserver.PushResponse;
-import app.elaphant.sdk.pushserver.Util;
 
 public class MainActivity extends Activity {
     private static final String TAG = "PeerNodeTest";
@@ -127,6 +126,9 @@ public class MainActivity extends Activity {
         } else if (item.getItemId() == R.id.send_notice) {
             sendNotice();
             return true;
+        } else if (item.getItemId() == R.id.send_binary_msg) {
+            sendBinaryMessage();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -204,6 +206,36 @@ public class MainActivity extends Activity {
         builder.create().show();
 
         return false;
+    }
+
+    private void sendBinaryMessage() {
+        if (mConnector == null) {
+            Toast.makeText(this, "please create connector first!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select a friend");
+        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        List<String> friends = mConnector.listFriendCode();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
+        assert friends != null;
+        arrayAdapter.addAll(friends);
+        builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                byte[] data = {48, 55, 99, 0, 32, 88};
+                mConnector.sendBinaryMessage(arrayAdapter.getItem(which), data);
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
     }
 
     private void send(String friendCode) {
@@ -319,9 +351,14 @@ public class MainActivity extends Activity {
 
         pushRequest.setAndroidNotificationChannel("1");
 
-        String expireTime = Util.getISO8601Time(new Date(System.currentTimeMillis() + 12 * 3600 * 1000)); // 12小时后消息失效, 不会再发送
-        pushRequest.setExpireTime(expireTime);
-        pushRequest.setStoreOffline(true); // 离线消息是否保存,若保存, 在推送时候，用户即使不在线，下一次上线则会收到
+        //辅助弹窗设置
+        pushRequest.setAndroidPopupActivity("app.elaphant.pushtest.PopupPushActivity");
+        pushRequest.setAndroidPopupTitle("wrapper title");
+        pushRequest.setAndroidPopupBody("wrapper body");
+
+//        String expireTime = Util.getISO8601Time(new Date(System.currentTimeMillis() + 12 * 3600 * 1000)); // 12小时后消息失效, 不会再发送
+//        pushRequest.setExpireTime(expireTime);
+//        pushRequest.setStoreOffline(true); // 离线消息是否保存,若保存, 在推送时候，用户即使不在线，下一次上线则会收到
         pushRequest.asyncExecute(new PushRequest.PushCallback() {
             @Override
             public void onFailure(PushRequest request, IOException e) {

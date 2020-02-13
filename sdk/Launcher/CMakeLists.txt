@@ -13,10 +13,6 @@ target_include_directories(PeerNodeLauncher PRIVATE
 
 target_link_libraries(PeerNodeLauncher PUBLIC PeerNode)
 
-if(DEFINED CFG_WITH_TEST)
-    add_subdirectory(Service)
-endif()
-
 install(TARGETS PeerNodeLauncher
         RUNTIME DESTINATION bin)
 install(PROGRAMS PeerNodeLauncher.sh
