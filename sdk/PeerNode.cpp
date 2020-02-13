@@ -76,6 +76,38 @@ void PeerNode::ContactListener::onReceivedMessage(const std::string& humanCode,
         }
 
     }
+    else if (msgInfo->type == ElaphantContact::Message::Type::MsgBinary) {
+        std::vector<uint8_t> data = msgInfo->data->toData();
+        auto it = std::find(data.begin(), data.end(), 0);
+
+        if (it != data.end()) {
+            int index = distance(data.begin(), it);
+            std::vector<uint8_t> protocol(data.begin(), data.begin() + index);
+            std::vector<uint8_t> binary(data.begin() + index + 1, data.end());
+            std::string jsonStr(protocol.begin(), protocol.end());
+
+            try {
+                Json json = Json::parse(jsonStr);
+                std::string content;
+                auto listeners = FindListener(jsonStr, content);
+                if (listeners.size() == 0) return;
+                for (auto const& listener : listeners) {
+                    listener->onReceivedMessage(humanCode, channelType, ElaphantContact::MakeBinaryMessage(binary));
+                }
+                return;
+            } catch (const std::exception& e) {
+                printf("parse json failed: %s\n", jsonStr.c_str());
+            }
+        }
+
+        std::unique_lock<std::mutex> _lock(mNode->mMsgListenerMutex);
+        auto ims = mNode->mMsgListenerMap.find(CHAT_SERVICE_NAME);
+        if (ims != mNode->mMsgListenerMap.end()) {
+            for (auto const& listener : ims->second) {
+                listener->onReceivedMessage(humanCode, channelType, ElaphantContact::MakeBinaryMessage(data));
+            }
+        }
+    }
 }
 
 void PeerNode::ContactListener::onError(int errCode, const std::string& errStr, const std::string& ext)
@@ -485,6 +517,42 @@ int PeerNode::SendMessage(const std::string& friendCode, const std::string& mess
     }
 
     return mContact->sendMessage(friendCode.c_str(), ElaphantContact::Channel::Carrier, msgInfo);
+}
+
+int PeerNode::SendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary)
+{
+    if (mContact.get() == nullptr) {
+        printf("ElaphantContact not Created!\n");
+        return -1;
+    }
+
+    auto msgInfo = ElaphantContact::MakeBinaryMessage(binary);
+    if(msgInfo == nullptr) {
+        printf("Failed to make binary message.");
+        return -1;
+    }
+
+    return mContact->sendMessage(friendCode.c_str(), ElaphantContact::Channel::Carrier, msgInfo);
+}
+
+int PeerNode::ExportUserData(const std::string& toFile)
+{
+    if (mContact.get() == nullptr) {
+        printf("ElaphantContact not Created!\n");
+        return -1;
+    }
+
+    return mContact->exportUserData(toFile);
+}
+
+int PeerNode::ImportUserData(const std::string& fromFile)
+{
+    if (mContact.get() == nullptr) {
+        printf("ElaphantContact not Created!\n");
+        return -1;
+    }
+
+    return mContact->importUserData(fromFile);
 }
 
 }

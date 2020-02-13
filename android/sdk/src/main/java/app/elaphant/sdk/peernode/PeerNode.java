@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,38 @@ public final class PeerNode {
                             listener.onReceivedMessage(humanCode, channelType, Contact.MakeTextMessage(content.toString(), null));
                         }
                     }
+                } else if (message.type == Contact.Message.Type.MsgBinary) {
+                    byte[] data = message.data.toData();
+                    int index = findInByteArray(data, (byte)0);
+                    List<PeerNodeListener.MessageListener> listeners;
+                    StringBuffer content = new StringBuffer();
+                    synchronized (mMessageListeners) {
+                        if (index >= 0) {
+                            byte[] protocol = Arrays.copyOfRange(data, 0, index);
+                            byte[] binary = Arrays.copyOfRange(data, index + 1, data.length);
+                            String str = new String(protocol);
+
+                            try {
+                                JSONObject jobj = new JSONObject(str);
+                                listeners = findMsgListener(str, content);
+                                if (listeners == null) return;
+
+                                for (PeerNodeListener.MessageListener listener : listeners) {
+                                    listener.onReceivedMessage(humanCode, channelType, Contact.MakeBinaryMessage(binary, null));
+                                }
+                                return;
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        listeners = findMsgListener("", content);
+                        if (listeners == null) return;
+
+                        for (PeerNodeListener.MessageListener listener : listeners) {
+                            listener.onReceivedMessage(humanCode, channelType, Contact.MakeBinaryMessage(data, null));
+                        }
+                    }
                 }
             }
 
@@ -115,6 +148,17 @@ public final class PeerNode {
             }
         };
         mContact.setDataListener(contactDataListener);
+    }
+
+    private int findInByteArray(byte[] data, byte element) {
+        int index = -1;
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] == element) {
+                index = i;
+                break;
+            }
+        }
+        return index;
     }
 
     private List<PeerNodeListener.MessageListener> findMsgListener(String summary, StringBuffer content) {
@@ -276,5 +320,13 @@ public final class PeerNode {
 
     public int setWalletAddress(String name, String value) {
         return mContact.setWalletAddress(name, value);
+    }
+
+    public int exportUserData(String toFile) {
+        return mContact.exportUserData(toFile);
+    }
+
+    public int importUserData(String fromFile) {
+        return mContact.importUserData(fromFile);
     }
 }

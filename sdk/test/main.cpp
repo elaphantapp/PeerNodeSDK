@@ -14,6 +14,7 @@ const char* c_help = \
     "c  conn      test connector.\n" \
     "f  friends   get friend list.\n"\
     "m  message   send message to friend. m [friendCode] [text].\n"\
+    "b  binary    send binary message to friend. b [friendCode].\n"\
     "t  thread    test connector in multi thread.\n" \
     "h  help      show help message.\n" \
     "e  exit      exit the test program.\n" \
@@ -28,6 +29,7 @@ void createConnector();
 void multiConnector();
 void listFriends();
 void sendMessage(const std::string& friendCode, const std::string& message);
+void sendBinaryMessage(const std::string& friendCode);
 
 std::shared_ptr<elastos::PeerNode> gPeerNode = nullptr;
 std::shared_ptr<ConnectorTest> gConnector = nullptr;
@@ -76,6 +78,9 @@ int main(int argc, char* argv[])
             if (!cmd.compare("m") || !cmd.compare("message")) {
                 if (v.size() < 3) continue;
                 sendMessage(v[1], v[2]);
+            }
+            else if (!cmd.compare("b") || !cmd.compare("binary")) {
+                sendBinaryMessage(v[1]);
             }
         }
     }
@@ -197,5 +202,19 @@ void sendMessage(const std::string& friendCode, const std::string& message)
         return;
     }
 
-    gConnector->mConnector->SendMessage(friendCode, message);
+    int ret = gConnector->mConnector->SendMessage(friendCode, message);
+    printf("send text message ret %d\n", ret);
+}
+
+void sendBinaryMessage(const std::string& friendCode)
+{
+    if (gConnector == nullptr) {
+        printf("Please create connector first!\n");
+        return;
+    }
+
+    std::vector<uint8_t> binary = {2, 7, 0, 255, 255};
+
+    int ret = gConnector->mConnector->SendMessage(friendCode, binary);
+    printf("send binary message ret %d\n", ret);
 }

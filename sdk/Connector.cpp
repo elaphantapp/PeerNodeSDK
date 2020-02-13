@@ -174,5 +174,52 @@ int Connector::SendMessage(const std::string& friendCode, const std::string& mes
     return mPeerNode->SendMessage(friendCode, data);
 }
 
+int Connector::SendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary)
+{
+    if (mPeerNode.get() == nullptr) {
+        printf("PeerNode not created!\n");
+        return -1;
+    }
+
+    bool isDid = friendCode.at(0) == 'i' && isAddressValid(friendCode.c_str());
+
+    std::vector<uint8_t> data;
+    if (isDid) {
+        Json json;
+        json["serviceName"] = mServiceName;
+        json["content"] = "bianry";
+        std::string jsonStr = json.dump();
+        std::vector<uint8_t> bytes(jsonStr.begin(), jsonStr.end());
+        data.insert(data.end(), bytes.begin(), bytes.end());
+        data.push_back(0);
+        data.insert(data.end(), binary.begin(), binary.end());
+    }
+    else {
+        data = binary;
+    }
+
+    return mPeerNode->SendMessage(friendCode, data);
+}
+
+int Connector::ExportUserData(const std::string& toFile)
+{
+     if (mPeerNode.get() == nullptr) {
+        printf("PeerNode not created!\n");
+        return -1;
+    }
+
+    return mPeerNode->ExportUserData(toFile);
+}
+
+int Connector::ImportUserData(const std::string& fromFile)
+{
+     if (mPeerNode.get() == nullptr) {
+        printf("PeerNode not created!\n");
+        return -1;
+    }
+
+    return mPeerNode->ImportUserData(fromFile);
+}
+
 
 }

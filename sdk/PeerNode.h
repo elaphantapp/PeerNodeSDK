@@ -107,6 +107,10 @@ public:
     std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ListFriendInfo();
 
     int SendMessage(const std::string& friendCode, const std::string& message);
+    int SendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary);
+
+    int ExportUserData(const std::string& toFile);
+    int ImportUserData(const std::string& fromFile);
 
 public:
     // create instance if sInstance is null.

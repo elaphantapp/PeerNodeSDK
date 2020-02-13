@@ -136,4 +136,41 @@ public final class Connector {
 
         return mPeerNode.sendMessage(friendCode, Contact.MakeTextMessage(data, null));
     }
+
+    public int sendBinaryMessage(String friendCode, byte[] binary) {
+        if (mPeerNode == null) return -1;
+
+        boolean isDidFriend = Contact.IsDidFriend(friendCode);
+
+        byte[] data;
+        if (isDidFriend) {
+            try {
+                JSONObject json = new JSONObject();
+                json.put("serviceName", mServiceName);
+                json.put("content", "binary");
+                byte[] protocol = json.toString().getBytes();
+                data = new byte[protocol.length + 1 + binary.length];
+                System.arraycopy(protocol, 0, data, 0, protocol.length);
+                data[protocol.length] = 0;
+                System.arraycopy(binary, 0, data, protocol.length + 1, binary.length);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return -1;
+            }
+        } else {
+            data = binary;
+        }
+
+        return mPeerNode.sendMessage(friendCode, Contact.MakeBinaryMessage(data, null));
+    }
+
+    public int exportUserData(String toFile) {
+        if (mPeerNode == null) return -1;
+        return mPeerNode.exportUserData(toFile);
+    }
+
+    public int importUserData(String fromFile) {
+        if (mPeerNode == null) return -1;
+        return mPeerNode.importUserData(fromFile);
+    }
 }
