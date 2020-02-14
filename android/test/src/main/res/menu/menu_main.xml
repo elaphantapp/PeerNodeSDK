@@ -10,6 +10,8 @@
         android:title="Send Message" />
     <item android:id="@+id/send_binary_msg"
         android:title="Send Binary Message" />
+    <item android:id="@+id/send_loop_msg"
+        android:title="Send Loop Message" />
     <item android:id="@+id/send_notice"
         android:title="@string/send_notice"/>
 

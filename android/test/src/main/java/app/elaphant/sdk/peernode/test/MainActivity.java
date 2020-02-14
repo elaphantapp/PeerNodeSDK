@@ -17,11 +17,8 @@ import android.widget.Toast;
 import org.elastos.sdk.elephantwallet.contact.Contact;
 import org.elastos.sdk.elephantwallet.contact.Utils;
 import org.elastos.sdk.keypair.ElastosKeypair;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 
@@ -37,6 +34,7 @@ public class MainActivity extends Activity {
     private static final String mnemonic = "ability cloth cannon buddy together theme uniform erase fossil meadow top pumpkin";
     private static final String mPrivateKey = "b8e923f4e5c5a3c704bcc02a90ee0e4fa34a5b8f0dd1de1be4eb2c37ffe8e3ea";
     private static final String mPublicKey = "021e53dc2b8af1548175cba357ae321096065f8d49e3935607bc8844c157bb0859";
+    private static final String mDid = "iZmEF8QifH1tUXnqyqnS2KdhfqZ3aiXxYa";
 
     private static final String ANDROID_TEST_APP_KEY = "28334887";
     private static final String ACCESS_KEY = "LTAI4FmvcqWxDbC8auMVkJ1J";
@@ -49,6 +47,8 @@ public class MainActivity extends Activity {
     private TextView mEvent;
 
     private Connector mConnector = null;
+
+    private Contact.ChannelStrategy mCustomChannelStrategy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +96,16 @@ public class MainActivity extends Activity {
             }
         });
 
+        mCustomChannelStrategy = new Contact.ChannelStrategy(Contact.Channel.CustomId, "LoopChannelStrategy") {
+            @Override
+            public int onSendMessage(String friendCode, byte[] data) {
+                int ret = receivedMessage(friendCode, data);
+                return ret;
+            }
+        };
+
+        mPeerNode.appendChannelStrategy(mCustomChannelStrategy);
+
         mPeerNode.start();
     }
 
@@ -129,6 +139,8 @@ public class MainActivity extends Activity {
         } else if (item.getItemId() == R.id.send_binary_msg) {
             sendBinaryMessage();
             return true;
+        } else if (item.getItemId() == R.id.send_loop_msg) {
+            sendLoopMessage();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -196,12 +208,9 @@ public class MainActivity extends Activity {
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
         assert friends != null;
         arrayAdapter.addAll(friends);
-        builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                send(arrayAdapter.getItem(which));
-                dialog.dismiss();
-            }
+        builder.setAdapter(arrayAdapter, (dialog, which) -> {
+            send(arrayAdapter.getItem(which));
+            dialog.dismiss();
         });
         builder.create().show();
 
@@ -227,13 +236,10 @@ public class MainActivity extends Activity {
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
         assert friends != null;
         arrayAdapter.addAll(friends);
-        builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                byte[] data = {48, 55, 99, 0, 32, 88};
-                mConnector.sendBinaryMessage(arrayAdapter.getItem(which), data);
-                dialog.dismiss();
-            }
+        builder.setAdapter(arrayAdapter, (dialog, which) -> {
+            byte[] data = {48, 55, 99, 0, 32, 88};
+            mConnector.sendBinaryMessage(arrayAdapter.getItem(which), Contact.Channel.Carrier,data);
+            dialog.dismiss();
         });
         builder.create().show();
     }
@@ -256,7 +262,7 @@ public class MainActivity extends Activity {
                 String message = edit.getText().toString().trim();
                 if (message.isEmpty()) return;
 
-                mConnector.sendMessage(friendCode, message);
+                mConnector.sendMessage(friendCode, Contact.Channel.Carrier, message);
             }
         });
         builder.create().show();
@@ -284,22 +290,12 @@ public class MainActivity extends Activity {
                 return;
         }
         String finalText = text;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mEvent.setText(finalText);
-            }
-        });
+        runOnUiThread(() -> mEvent.setText(finalText));
 
     }
 
     private void showMessage(String humanCode, Contact.Message message) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mMessage.setText("Receive message from " + humanCode + " " + message.data.toString());
-            }
-        });
+        runOnUiThread(() -> mMessage.setText("Receive message from " + humanCode + " " + message.data.toString()));
     }
 
     private void showError(String text) {
@@ -317,20 +313,12 @@ public class MainActivity extends Activity {
         builder.setTitle("Input DID");
 
         builder.setView(edit);
-        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String friendCode = edit.getText().toString().trim();
-                if (friendCode.isEmpty()) return;
+        builder.setNegativeButton("cancel", (dialog, which) -> dialog.dismiss());
+        builder.setPositiveButton("ok", (dialog, which) -> {
+            String friendCode = edit.getText().toString().trim();
+            if (friendCode.isEmpty()) return;
 
-                mConnector.addFriend(friendCode, "hello");
-            }
+            mConnector.addFriend(friendCode, "hello");
         });
         builder.create().show();
     }
@@ -381,4 +369,26 @@ public class MainActivity extends Activity {
         });
 
     }
+
+    private void sendLoopMessage() {
+        if (mConnector == null) {
+            Toast.makeText(this, "please create connector first!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        final EditText edit = new EditText(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Input message");
+
+        builder.setView(edit);
+        builder.setNegativeButton("cancel", (dialog, which) -> dialog.dismiss());
+        builder.setPositiveButton("ok", (dialog, which) -> {
+            String message = edit.getText().toString().trim();
+            if (message.isEmpty()) return;
+
+            mConnector.sendMessage(mDid, mCustomChannelStrategy.getChannel(), message);
+        });
+        builder.create().show();
+    }
+
 }

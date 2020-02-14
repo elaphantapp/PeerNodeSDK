@@ -151,7 +151,7 @@ std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> Connector::ListFriendI
     return mPeerNode->ListFriendInfo();
 }
 
-int Connector::SendMessage(const std::string& friendCode, const std::string& message)
+int Connector::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message)
 {
     if (mPeerNode.get() == nullptr) {
         printf("PeerNode not created!\n");
@@ -171,10 +171,10 @@ int Connector::SendMessage(const std::string& friendCode, const std::string& mes
         data = message;
     }
 
-    return mPeerNode->SendMessage(friendCode, data);
+    return mPeerNode->SendMessage(friendCode, channel, data);
 }
 
-int Connector::SendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary)
+int Connector::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary)
 {
     if (mPeerNode.get() == nullptr) {
         printf("PeerNode not created!\n");
@@ -198,7 +198,7 @@ int Connector::SendMessage(const std::string& friendCode, const std::vector<uint
         data = binary;
     }
 
-    return mPeerNode->SendMessage(friendCode, data);
+    return mPeerNode->SendMessage(friendCode, channel, data);
 }
 
 

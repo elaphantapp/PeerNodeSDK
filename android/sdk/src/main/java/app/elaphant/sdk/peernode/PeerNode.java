@@ -262,6 +262,10 @@ public final class PeerNode {
         return mContact.stop();
     }
 
+    public int appendChannelStrategy(Contact.ChannelStrategy strategy) {
+        return mContact.appendChannelStrategy(strategy);
+    }
+
     public int setUserInfo(Contact.HumanInfo.Item item, String value) {
         return mContact.setUserInfo(item, value);
     }
@@ -306,8 +310,8 @@ public final class PeerNode {
         return mContact.getStatus(friendCode);
     }
 
-    public int sendMessage(String friendCode, Contact.Message message) {
-        return mContact.sendMessage(friendCode, Contact.Channel.Carrier, message);
+    public int sendMessage(String friendCode, Contact.Channel channel, Contact.Message message) {
+        return mContact.sendMessage(friendCode, channel, message);
     }
 
     public int pullFileAsync(String friendCode, Contact.Message.FileData fileInfo) {

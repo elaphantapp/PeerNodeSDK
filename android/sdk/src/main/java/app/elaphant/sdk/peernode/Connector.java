@@ -114,7 +114,7 @@ public final class Connector {
         return mPeerNode.getFriendStatus(friendCode);
     }
 
-    public int sendMessage(String friendCode, String message) {
+    public int sendMessage(String friendCode, Contact.Channel channel, String message) {
         if (mPeerNode == null) return -1;
 
         boolean isDidFriend = Contact.IsDidFriend(friendCode);
@@ -134,10 +134,10 @@ public final class Connector {
             data = message;
         }
 
-        return mPeerNode.sendMessage(friendCode, Contact.MakeTextMessage(data, null));
+        return mPeerNode.sendMessage(friendCode, channel, Contact.MakeTextMessage(data, null));
     }
 
-    public int sendBinaryMessage(String friendCode, byte[] binary) {
+    public int sendBinaryMessage(String friendCode, Contact.Channel channel, byte[] binary) {
         if (mPeerNode == null) return -1;
 
         boolean isDidFriend = Contact.IsDidFriend(friendCode);
@@ -161,6 +161,6 @@ public final class Connector {
             data = binary;
         }
 
-        return mPeerNode.sendMessage(friendCode, Contact.MakeBinaryMessage(data, null));
+        return mPeerNode.sendMessage(friendCode, channel, Contact.MakeBinaryMessage(data, null));
     }
 }

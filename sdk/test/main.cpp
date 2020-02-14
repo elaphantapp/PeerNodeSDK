@@ -15,6 +15,7 @@ const char* c_help = \
     "f  friends   get friend list.\n"\
     "m  message   send message to friend. m [friendCode] [text].\n"\
     "b  binary    send binary message to friend. b [friendCode].\n"\
+    "l  loop      test loop message by custom channel. l [text].\n"\
     "t  thread    test connector in multi thread.\n" \
     "h  help      show help message.\n" \
     "e  exit      exit the test program.\n" \
@@ -23,6 +24,7 @@ const char* c_help = \
 const std::string mnemonic = "dove arctic cute sunset solution invest wasp lawn dawn town snake eight";
 const std::string testPrivateKey = "fc930bfc48efaa0aedd245725ce3a3f16294c7c9c5f7219d741409d3d1c927d8";
 const std::string testPublicKey = "0220f01b9a715acf02b3d45be2a29138be8f2f8c328da118c617ac11305cdf44fa";
+const std::string testDid = "iZttd8AUSn5gKgAVFmkQLUhDSRjPpRf2vX";
 
 void createAndStartPeerNode();
 void createConnector();
@@ -30,6 +32,7 @@ void multiConnector();
 void listFriends();
 void sendMessage(const std::string& friendCode, const std::string& message);
 void sendBinaryMessage(const std::string& friendCode);
+void sendLoopMessage(const std::string& message);
 
 std::shared_ptr<elastos::PeerNode> gPeerNode = nullptr;
 std::shared_ptr<ConnectorTest> gConnector = nullptr;
@@ -41,6 +44,25 @@ std::vector<std::string> gServiceNameVector = {
     "ThreadTest5"
 };
 std::shared_ptr<ConnectorTest>* gConnectorVector = new std::shared_ptr<ConnectorTest>[gServiceNameVector.size()];
+
+class ChannelStrategy: public elastos::sdk::Contact::ChannelStrategy {
+public:
+    explicit ChannelStrategy()
+            : ElaphantContact::ChannelStrategy(ElaphantContact::Channel::CustomId,
+                                                     "LoopMessage") {
+    }
+    virtual ~ChannelStrategy() = default;
+
+    virtual int onSendMessage(const std::string& humanCode,
+                              ElaphantContact::Channel channelType,
+                              const std::vector<uint8_t>& data) override {
+        printf("ChannelStrategy onSendMessage\n");
+        auto ret = this->receivedMessage(humanCode, channelType, data);
+        return ret;
+    }
+};
+
+std::shared_ptr<elastos::sdk::Contact::ChannelStrategy> gChannelStrategy;
 
 int main(int argc, char* argv[])
 {
@@ -81,6 +103,9 @@ int main(int argc, char* argv[])
             }
             else if (!cmd.compare("b") || !cmd.compare("binary")) {
                 sendBinaryMessage(v[1]);
+            }
+            else if (!cmd.compare("l") || !cmd.compare("loop")) {
+                sendLoopMessage(v[1]);
             }
         }
     }
@@ -150,6 +175,9 @@ void createAndStartPeerNode() {
     static std::shared_ptr<elastos::PeerListener::Listener> listener(new Listener());
     gPeerNode->SetListener(listener);
 
+    gChannelStrategy = std::make_shared<ChannelStrategy>();
+    gPeerNode->AppendChannelStrategy(gChannelStrategy);
+
     gPeerNode->Start();
     gPeerNode->SyncInfoUploadToDidChain();
 }
@@ -202,7 +230,7 @@ void sendMessage(const std::string& friendCode, const std::string& message)
         return;
     }
 
-    int ret = gConnector->mConnector->SendMessage(friendCode, message);
+    int ret = gConnector->mConnector->SendMessage(friendCode, ElaphantContact::Channel::Carrier, message);
     printf("send text message ret %d\n", ret);
 }
 
@@ -215,6 +243,17 @@ void sendBinaryMessage(const std::string& friendCode)
 
     std::vector<uint8_t> binary = {2, 7, 0, 255, 255};
 
-    int ret = gConnector->mConnector->SendMessage(friendCode, binary);
+    int ret = gConnector->mConnector->SendMessage(friendCode, ElaphantContact::Channel::Carrier, binary);
     printf("send binary message ret %d\n", ret);
+}
+
+void sendLoopMessage(const std::string& message)
+{
+    if (gConnector == nullptr) {
+        printf("Please create connector first!\n");
+        return;
+    }
+
+    int ret = gConnector->mConnector->SendMessage(testDid, gChannelStrategy->getChannelId(), message);
+    printf("send loop message ret %d\n", ret);
 }

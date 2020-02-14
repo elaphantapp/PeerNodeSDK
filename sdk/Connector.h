@@ -33,8 +33,8 @@ public:
     std::shared_ptr<ElaphantContact::UserInfo> GetUserInfo();
     std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ListFriendInfo();
 
-    int SendMessage(const std::string& friendCode, const std::string& message);
-    int SendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary);
+    int SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message);
+    int SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary);
 
 private:
     void RemoveMessageListener();

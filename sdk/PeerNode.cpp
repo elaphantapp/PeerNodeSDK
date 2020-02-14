@@ -335,6 +335,16 @@ int PeerNode::Stop()
     return mContact->stop();
 }
 
+int PeerNode::AppendChannelStrategy(crosspl::native::ChannelStrategyPtr channelStrategy)
+{
+    if (mContact.get() == nullptr) {
+        printf("ElaphantContact not Created!\n");
+        return -1;
+    }
+
+    return mContact->appendChannelStrategy(channelStrategy);
+}
+
 int PeerNode::SetUserInfo(ElaphantContact::HumanInfo::Item item, const std::string& value)
 {
     if (mContact.get() == nullptr) {
@@ -503,7 +513,7 @@ std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> PeerNode::ListFriendIn
     return mContact->listFriendInfo();
 }
 
-int PeerNode::SendMessage(const std::string& friendCode, const std::string& message)
+int PeerNode::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message)
 {
     if (mContact.get() == nullptr) {
         printf("ElaphantContact not Created!\n");
@@ -516,10 +526,10 @@ int PeerNode::SendMessage(const std::string& friendCode, const std::string& mess
         return -1;
     }
 
-    return mContact->sendMessage(friendCode.c_str(), ElaphantContact::Channel::Carrier, msgInfo);
+    return mContact->sendMessage(friendCode.c_str(), channel, msgInfo);
 }
 
-int PeerNode::SendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary)
+int PeerNode::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary)
 {
     if (mContact.get() == nullptr) {
         printf("ElaphantContact not Created!\n");
@@ -532,7 +542,7 @@ int PeerNode::SendMessage(const std::string& friendCode, const std::vector<uint8
         return -1;
     }
 
-    return mContact->sendMessage(friendCode.c_str(), ElaphantContact::Channel::Carrier, msgInfo);
+    return mContact->sendMessage(friendCode.c_str(), channel, msgInfo);
 }
 
 int PeerNode::ExportUserData(const std::string& toFile)
