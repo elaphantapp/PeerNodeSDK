@@ -57,7 +57,7 @@ void MicroService::MessageListener::onReceivedMessage(const std::string& humanCo
     printf("Serice %s received message from %s content %s\n", mOutter->mName.c_str(),
                         humanCode.c_str(), msgInfo->data->toString().c_str());
 
-    mOutter->mConnector->SendMessage(humanCode, msgInfo->data->toString());
+    mOutter->mConnector->SendMessage(humanCode, ElaphantContact::Channel::Carrier, msgInfo->data->toString());
 }
 
 }

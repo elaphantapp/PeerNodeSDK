@@ -82,6 +82,8 @@ public:
     int Start();
     int Stop();
 
+    int AppendChannelStrategy(crosspl::native::ChannelStrategyPtr channelStrategy);
+
     int SetUserInfo(ElaphantContact::HumanInfo::Item item, const std::string& value);
     int SetIdentifyCode(ElaphantContact::UserInfo::Type type, const std::string& value);
 
@@ -106,8 +108,8 @@ public:
     std::shared_ptr<ElaphantContact::UserInfo> GetUserInfo();
     std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ListFriendInfo();
 
-    int SendMessage(const std::string& friendCode, const std::string& message);
-    int SendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary);
+    int SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message);
+    int SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary);
 
     int ExportUserData(const std::string& toFile);
     int ImportUserData(const std::string& fromFile);
