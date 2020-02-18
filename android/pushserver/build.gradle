@@ -3,6 +3,9 @@ apply plugin: 'com.android.library'
 apply from: "$rootProject.projectDir/gradle/android.gradle"
 
 dependencies {
-    implementation 'com.squareup.okhttp3:okhttp:4.3.1'
-    implementation 'com.google.code.gson:gson:2.8.6'
+//    implementation 'com.squareup.okhttp3:okhttp:4.3.1'
+    implementation ('com.github.bumptech.glide:okhttp3-integration:1.4.0'){
+        exclude group: 'glide-parent'
+    }
+    implementation 'org.kie.modules:com-google-code-gson:6.5.0.Final'
 }
