@@ -53,6 +53,25 @@ class ViewController: UIViewController {
       return Impl(self)
     }()
     mPeerNode!.setListener(listener: mPeerNodeListener!)
+
+    mCustomChannelStrategy = {
+      class Impl: Contact.ChannelStrategy {
+        init() {
+          super.init(channelId: Contact.Channel.CustomId.rawValue, name: "LoopMessage")
+        }
+
+        override func onSendMessage(humanCode: String, data: Data?) -> Int {
+          self.receivedMessage(humanCode: humanCode, data: data)
+        }
+      }
+      return Impl()
+    }()
+    let cret = mPeerNode!.appendChannelStrategy(channelStrategy: mCustomChannelStrategy!)
+    if cret < 0 {
+      showError("Failed to call PeerNode.appendChannelStrategy() ret=\(cret)")
+      return
+    }
+
     let ret = mPeerNode!.start()
     if(ret < 0) {
       showError("Failed to start PeerNode. ret = \(ret)")
@@ -83,9 +102,17 @@ class ViewController: UIViewController {
                                         channelType: Contact.Channel,
                                         message: Contact.Message) {
           var msg = "onRcvdMsg(): from=\(humanCode)\n"
-          msg += "onRcvdMsg(): data=\(message.data.toString())\n"
+          if message.type == Contact.Message.Kind.MsgText {
+            msg += "onRcvdMsg(): data=\(message.data.toString())\n"
+          }
+          else if message.type == Contact.Message.Kind.MsgBinary {
+            let data = message.data.toData()
+            let bytes = [UInt8](data!)
+            msg += "onRcvdMsg(): data=\(bytes)\n"
+          }
           msg += "onRcvdMsg(): type=\(message.type)\n"
           msg += "onRcvdMsg(): crypto=" + (message.cryptoAlgorithm ?? "nil") + "\n"
+          print(msg)
           viewCtrl.showMessage(msg)
         }
 
@@ -112,7 +139,7 @@ class ViewController: UIViewController {
           return
         }
 
-        let ret = self.mConnector!.sendMessage(friendCode: friendCode!,
+        let ret = self.mConnector!.sendMessage(friendCode: friendCode!, channel: Contact.Channel.Carrier,
                                                message: message!)
         if(ret < 0) {
           self.showMessage(ViewController.ErrorPrefix + "Failed to send message to " + friendCode!)
@@ -120,6 +147,49 @@ class ViewController: UIViewController {
       })
     })
 
+  }
+
+  private func sendBinaryMessage() {
+    if (mConnector == nil) {
+      showToast("please create connector first!")
+      return
+    }
+
+    let friendCodeList = mConnector!.listFriendCode()
+    Helper.showFriendList(view: self, friendList: friendCodeList, listener:  { friendCode in
+      let status = self.mConnector!.getFriendStatus(friendCode: friendCode!)
+      if(status != Contact.Status.Online) {
+        self.showMessage(ViewController.ErrorPrefix + "Friend is not online.")
+        return
+      }
+
+      let data = Data.init([25, 33, 88, 0, 254, 2])
+      let ret = self.mConnector!.sendBinaryMessage(friendCode: friendCode!, channel: Contact.Channel.Carrier,
+                                             message: data)
+      if(ret < 0) {
+        self.showMessage(ViewController.ErrorPrefix + "Failed to send binary message to " + friendCode!)
+      }
+    })
+
+  }
+
+  private func sendLoopMessage() {
+    if (mConnector == nil) {
+      showToast("please create connector first!")
+      return
+    }
+    let info = mPeerNode!.getUserInfo()
+    if info == nil {
+      showToast("Failed to get user info.")
+      return
+    }
+
+    let ret = mConnector!.sendMessage(friendCode: info!.humanCode!,
+                                    channel: mCustomChannelStrategy!.getChannel(),
+                                    message: "test loop message")
+    if(ret < 0) {
+      showToast("Failed to call testLoopMessage() ret=\(ret)")
+    }
   }
 
     private func requestToAddFriend() {
@@ -154,7 +224,9 @@ class ViewController: UIViewController {
     enum ButtonTag: Int {
       case create_service = 100
       case send_msg = 101
-        case add_friend = 102
+      case add_friend = 102
+      case send_bin_msg = 103
+      case send_loop_msg = 104
     }
 
     switch sender.tag {
@@ -165,8 +237,14 @@ class ViewController: UIViewController {
       sendMessage()
       break
     case ButtonTag.add_friend.rawValue:
-        requestToAddFriend()
-        break
+      requestToAddFriend()
+      break
+    case ButtonTag.send_bin_msg.rawValue:
+      sendBinaryMessage()
+      break
+    case ButtonTag.send_loop_msg.rawValue:
+      sendLoopMessage()
+      break
     default:
       fatalError("Button [\(sender.currentTitle!)(\(sender.tag))] not decleared.")
     }
@@ -334,15 +412,15 @@ class ViewController: UIViewController {
 
   // DID 1
 //  private let mSavedMnemonic = "advance script timber immense increase gap wedding message awkward vote melt destroy"
-//  private let mPublicKey = "020ef0472d42c9779961b88cb38ba65e270102cf6e9e1f67f1574c63cbdc0ca81b"
-//  private let mPrivateKey = "f66583200f6e5dff023a323d07c8c4e5925572a056ea28930822ab56429a44d4"
+  private let mPublicKey = "020ef0472d42c9779961b88cb38ba65e270102cf6e9e1f67f1574c63cbdc0ca81b"
+  private let mPrivateKey = "f66583200f6e5dff023a323d07c8c4e5925572a056ea28930822ab56429a44d4"
 //  private let mCarrierAddress = "9N3C8AuXfEHXvWGz5VR9nU8rN3n32XhtG3NW2X54KKF7tVan2NVG"
 //  private let mDID = "iqyzac2ZZh6NRmUWC8zUrvZ2rfntDo6PJe"
 
 //  private let mCarrierAddress2 = "MD7RNZMEmt134yWjp3byby5RtsxPJkBqEZcgHRVtCPmB9cuu4u3M"
 //  private let mDID2 = "iemYy4qMieiZzJDb7uZDvEDnvko8yepN2y"
-    private let mPublicKey = "02ce1e16f2e0f584cc0cca8354ebe703049eb8317f503d836a7d91744754ca0469"
-    private let mPrivateKey = "3e444ded5c1ee80f1cc3b5845cac4cb4d72f0f5a7cb31882a2950902753b3e1a"
+//    private let mPublicKey = "02ce1e16f2e0f584cc0cca8354ebe703049eb8317f503d836a7d91744754ca0469"
+//    private let mPrivateKey = "3e444ded5c1ee80f1cc3b5845cac4cb4d72f0f5a7cb31882a2950902753b3e1a"
 
 /*
     // DID 2
@@ -362,6 +440,8 @@ class ViewController: UIViewController {
 //
   private var mConnector: Connector?
   private var mMsgListener: PeerNodeListener.MessageListener?
+
+  private var mCustomChannelStrategy: Contact.ChannelStrategy?
 
 
 //  private var mContactRecvFileMap = [String: Contact.Message.FileData]()

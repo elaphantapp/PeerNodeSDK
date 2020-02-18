@@ -92,6 +92,32 @@ open class PeerNode {
               }
             }
           }
+          else if (message.type == Contact.Message.Kind.MsgBinary) {
+            let data = message.data.toData()
+            let first = data!.firstIndex(of: 0)
+            var content: Data = data!
+            PeerNode.WithLock(lock: peerNode.mMessageListeners) {
+              var lis: [PeerNodeListener.MessageListener]?
+              if first == nil {
+                lis = peerNode.findMsgListener(summary: "")
+              }
+              else {
+                let json = data!.subdata(in: 0..<first!)
+                print(json)
+                content = data!.subdata(in: (first! + 1)..<data!.count)
+                let jsonStr = String(data: json, encoding: String.Encoding.utf8)
+                lis = peerNode.findMsgListener(summary: jsonStr!)
+              }
+              if (lis == nil) {
+                return
+              }
+
+              for listener in lis! {
+                listener.onReceivedMessage(humanCode: humanCode, channelType: channelType, message: Contact.MakeBinaryMessage(data: content, cryptoAlgorithm: nil))
+              }
+            }
+
+          }
         }
 
         override func onError(errCode: Int32, errStr: String, ext: String?) {
@@ -245,6 +271,10 @@ open class PeerNode {
   public func stop() -> Int {
     return mContact.stop()
   }
+
+  public func appendChannelStrategy(channelStrategy: Contact.ChannelStrategy) -> Int {
+      return mContact.appendChannelStrategy(channelStrategy: channelStrategy)
+  }
   
   public func setUserInfo(item: Contact.UserInfo.Item, value: String) -> Int {
     return mContact.setUserInfo(item: item, value: value)
@@ -289,9 +319,9 @@ open class PeerNode {
     return mContact.getStatus(humanCode: friendCode)
   }
   
-  public func sendMessage(friendCode: String, message: Contact.Message) -> Int {
+  public func sendMessage(friendCode: String, channel: Contact.Channel, message: Contact.Message) -> Int {
     return mContact.sendMessage(friendCode: friendCode,
-                                channelType: Contact.Channel.Carrier,
+                                channelType: channel,
                                 message: message)
   }
   
@@ -309,5 +339,13 @@ open class PeerNode {
   
   public func setWalletAddress(name: String, value: String) -> Int {
     return mContact.setWalletAddress(name: name, value: value)
+  }
+
+  public func exportUserData(toFile: String) -> Int {
+      return mContact.exportUserData(toFile: toFile);
+  }
+
+  public func importUserData(fromFile: String) -> Int {
+      return mContact.importUserData(fromFile: fromFile);
   }
 }
