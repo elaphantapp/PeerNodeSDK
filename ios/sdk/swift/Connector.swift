@@ -122,7 +122,7 @@ open class Connector {
     return mPeerNode?.getFriendStatus(friendCode: friendCode) ?? Contact.Status.Invalid
   }
   
-  public func sendMessage(friendCode: String, message: String) -> Int {
+  public func sendMessage(friendCode: String, channel: Contact.Channel, message: String) -> Int {
    if (mPeerNode == nil) {
      return -1
    }
@@ -145,9 +145,39 @@ open class Connector {
       data = message
     }
    
-    return mPeerNode!.sendMessage(friendCode: friendCode,
+    return mPeerNode!.sendMessage(friendCode: friendCode, channel: channel,
                                   message: Contact.MakeTextMessage(text: data, cryptoAlgorithm: nil))
   }
   
+  public func sendBinaryMessage(friendCode: String, channel: Contact.Channel, message: Data) -> Int {
+    if (mPeerNode == nil) {
+      return -1
+    }
+
+    var data: Data
+    let isDidFriend = ContactSDK.Contact.IsDidFriend(friendCode: friendCode)
+    if (isDidFriend) {
+     do {
+       let json = [
+         "serviceName": mServiceName,
+         "content": "binary",
+       ]
+       let encode = try JSONEncoder().encode(json)
+       let str = String(data: encode, encoding: .utf8)!
+       data = str.data(using: String.Encoding.utf8)!
+       data.append(UInt8(0))
+       data.append(message)
+     } catch {
+       print("make json failed\n")
+       return -1
+     }
+    } else {
+      data = message
+    }
+
+    return mPeerNode!.sendMessage(friendCode: friendCode, channel: channel,
+                                  message: Contact.MakeBinaryMessage(data: data, cryptoAlgorithm: nil))
+  }
+
 }
 
