@@ -18,10 +18,11 @@ TARGET_PATH="$PACKAGE_DIR/${PROJECT_NAME}-${PROJECT_VERSION}.aar";
 
 ANDROID_DIR="$PROJECT_DIR/android";
 cd "$ANDROID_DIR";
-./gradlew :sdk:assembleDebug -P versionCode=${PROJECT_REVISION} -P versionName=${PROJECT_VERSION/v/}
+./gradlew :sdk:assembleDebug :pushserver:assembleDebug -P versionCode=${PROJECT_REVISION} -P versionName=${PROJECT_VERSION/v/}
 rm -rf "$TARGET_PATH" "$PACKAGE_DIR/"*.aar;
 cp "$ANDROID_DIR/sdk/build/outputs/aar/sdk-debug.aar" "$TARGET_PATH";
 cp "$ANDROID_DIR/sdk/libs/"*.aar "$PACKAGE_DIR";
+cp "$ANDROID_DIR/pushserver/build/outputs/aar/pushserver-debug.aar" "$PACKAGE_DIR/pushserver-${PROJECT_VERSION}.aar";
 git tag --force ${PROJECT_VERSION}
 
 
