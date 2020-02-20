@@ -86,7 +86,7 @@ class ViewController: UIViewController {
       return;
     }
 
-    mConnector = Connector(serviceName: "elaphantchat")
+    mConnector = Connector(serviceName: "test")
     mMsgListener = {
       class Impl: PeerNodeListener.MessageListener {
         init(_ vc: ViewController) {

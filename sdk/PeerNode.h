@@ -34,6 +34,10 @@ private:
     private:
         std::vector<std::shared_ptr<PeerListener::MessageListener>> FindListener(const std::string& content, std::string& out);
 
+        void DistributeBinary(const std::string& humanCode,
+                                ElaphantContact::Channel channelType,
+                                const std::vector<uint8_t>& data);
+
     private:
         PeerNode* mNode;
     };
