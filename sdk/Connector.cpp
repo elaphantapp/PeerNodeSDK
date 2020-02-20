@@ -2,6 +2,8 @@
 #include "Connector.h"
 #include "Elastos.Wallet.Utility.h"
 
+extern const std::vector<uint8_t> PROTOCOL_APPEND_DATA;
+
 namespace elastos {
 
 Connector::Connector(const std::string& serviceName)
@@ -191,7 +193,7 @@ int Connector::SendMessage(const std::string& friendCode, ElaphantContact::Chann
         std::string jsonStr = json.dump();
         std::vector<uint8_t> bytes(jsonStr.begin(), jsonStr.end());
         data.insert(data.end(), bytes.begin(), bytes.end());
-        data.push_back(0);
+        data.insert(data.end(), PROTOCOL_APPEND_DATA.begin(), PROTOCOL_APPEND_DATA.end());
         data.insert(data.end(), binary.begin(), binary.end());
     }
     else {

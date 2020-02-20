@@ -12,6 +12,7 @@ import ContactSDK
 open class PeerNode {  
   static var sInstance: PeerNode?
   public static let CHAT_SERVICE_NAME = "chat";
+  public static let PROTOCOL_APPEND_DATA = Data.init([0xC3, 0x83, 0xC3, 0x83, 0xC3, 0x83, 0xC3, 0x83])
   
   private var mContact: Contact
   private var mListener: PeerNodeListener.Listener? = nil
@@ -55,12 +56,15 @@ open class PeerNode {
             PeerNode.WithLock(lock: peerNode.mMessageListeners) {
               let requestEvent = event as! Contact.Listener.RequestEvent
               let listeners = peerNode.findMsgListener(summary: requestEvent.summary)
-              if (listeners == nil) {
+              if (listeners.lis == nil) {
                 return
               }
-              
-              for listener in listeners! {
-                listener.onEvent(event: event)
+
+              let args = RequestEvent(type: event.type.rawValue, humanCode: event.humanCode,
+                                      channelType: event.channelType.rawValue,
+                                      data: listeners.content!.data(using: String.Encoding.utf8))
+              for listener in listeners.lis! {
+                listener.onEvent(event: args)
               }
             }
           } else {
@@ -83,40 +87,18 @@ open class PeerNode {
           if(message.type == Contact.Message.Kind.MsgText) {
             PeerNode.WithLock(lock: peerNode.mMessageListeners) {
               let listeners = peerNode.findMsgListener(summary: message.data.toString())
-              if (listeners == nil) {
+              if (listeners.lis == nil) {
                 return
               }
               
-              for listener in listeners! {
-                listener.onReceivedMessage(humanCode: humanCode, channelType: channelType, message: message)
+              for listener in listeners.lis! {
+                listener.onReceivedMessage(humanCode: humanCode, channelType: channelType, message: Contact.MakeTextMessage(text: listeners.content!, cryptoAlgorithm: nil))
               }
             }
           }
           else if (message.type == Contact.Message.Kind.MsgBinary) {
             let data = message.data.toData()
-            let first = data!.firstIndex(of: 0)
-            var content: Data = data!
-            PeerNode.WithLock(lock: peerNode.mMessageListeners) {
-              var lis: [PeerNodeListener.MessageListener]?
-              if first == nil {
-                lis = peerNode.findMsgListener(summary: "")
-              }
-              else {
-                let json = data!.subdata(in: 0..<first!)
-                print(json)
-                content = data!.subdata(in: (first! + 1)..<data!.count)
-                let jsonStr = String(data: json, encoding: String.Encoding.utf8)
-                lis = peerNode.findMsgListener(summary: jsonStr!)
-              }
-              if (lis == nil) {
-                return
-              }
-
-              for listener in lis! {
-                listener.onReceivedMessage(humanCode: humanCode, channelType: channelType, message: Contact.MakeBinaryMessage(data: content, cryptoAlgorithm: nil))
-              }
-            }
-
+            peerNode.distributeBinary(humanCode: humanCode, channelType: channelType, data: data!)
           }
         }
 
@@ -168,14 +150,16 @@ open class PeerNode {
     mContact.setDataListener(listener: contactDataListener)
   }
   
-  private func findMsgListener(summary: String) -> [PeerNodeListener.MessageListener]? {
+  private func findMsgListener(summary: String) -> (lis: [PeerNodeListener.MessageListener]?, content: String?) {
     var lis: [PeerNodeListener.MessageListener]? = nil
-    
+    var content: String?
+
     PeerNode.WithLock(lock: self) {
       do {
         let data = summary.data(using: .utf8)!
         let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
         let name = (json as? [String: AnyObject])?["serviceName"] as? String
+        content = (json as? [String: AnyObject])?["content"] as? String
         if (name != nil) {
           lis = mMessageListeners[name!.lowercased()]
         }
@@ -184,11 +168,48 @@ open class PeerNode {
       }
     
       if (lis == nil) {
-        lis = mMessageListeners["elaphantchat"]
+        content = summary
+        lis = mMessageListeners["chat"]
       }
     }
     
-    return lis
+    return (lis, content)
+  }
+
+  private func distributeBinary(humanCode: String, channelType: Contact.Channel, data: Data) {
+    let range = data.range(of: PeerNode.PROTOCOL_APPEND_DATA)
+    PeerNode.WithLock(lock: mMessageListeners) {
+      var lis: [PeerNodeListener.MessageListener]?
+      if range != nil {
+        let json = data.subdata(in: 0..<range!.first!)
+        do {
+          let json = try JSONSerialization.jsonObject(with: json, options: .allowFragments)
+          let name = (json as? [String: AnyObject])?["serviceName"] as? String
+          if (name != nil) {
+            lis = mMessageListeners[name!.lowercased()]
+            if lis != nil {
+              let content = data.subdata(in: (range!.first! + PeerNode.PROTOCOL_APPEND_DATA.count)..<data.count)
+              for listener in lis! {
+                listener.onReceivedMessage(humanCode: humanCode, channelType: channelType,
+                                           message: Contact.MakeBinaryMessage(data: content, cryptoAlgorithm: nil))
+              }
+              return
+            }
+          }
+        } catch {
+          print("parse json failed\n");
+        }
+      }
+
+      lis = mMessageListeners["chat"]
+      if lis == nil {
+        return
+      }
+      for listener in lis! {
+        listener.onReceivedMessage(humanCode: humanCode, channelType: channelType,
+                                   message: Contact.MakeBinaryMessage(data: data, cryptoAlgorithm: nil))
+      }
+    }
   }
   
   // create instance if sInstance is null.

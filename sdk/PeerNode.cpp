@@ -2,6 +2,8 @@
 #include "PeerNode.h"
 #include "Json.hpp"
 
+extern "C" const std::vector<uint8_t> PROTOCOL_APPEND_DATA = {0xC3, 0x83, 0xC3, 0x83, 0xC3, 0x83, 0xC3, 0x83};
+
 namespace elastos {
 
 std::shared_ptr<PeerNode> PeerNode::sInstance;
@@ -77,36 +79,7 @@ void PeerNode::ContactListener::onReceivedMessage(const std::string& humanCode,
 
     }
     else if (msgInfo->type == ElaphantContact::Message::Type::MsgBinary) {
-        std::vector<uint8_t> data = msgInfo->data->toData();
-        auto it = std::find(data.begin(), data.end(), 0);
-
-        if (it != data.end()) {
-            int index = distance(data.begin(), it);
-            std::vector<uint8_t> protocol(data.begin(), data.begin() + index);
-            std::vector<uint8_t> binary(data.begin() + index + 1, data.end());
-            std::string jsonStr(protocol.begin(), protocol.end());
-
-            try {
-                Json json = Json::parse(jsonStr);
-                std::string content;
-                auto listeners = FindListener(jsonStr, content);
-                if (listeners.size() == 0) return;
-                for (auto const& listener : listeners) {
-                    listener->onReceivedMessage(humanCode, channelType, ElaphantContact::MakeBinaryMessage(binary));
-                }
-                return;
-            } catch (const std::exception& e) {
-                printf("parse json failed: %s\n", jsonStr.c_str());
-            }
-        }
-
-        std::unique_lock<std::mutex> _lock(mNode->mMsgListenerMutex);
-        auto ims = mNode->mMsgListenerMap.find(CHAT_SERVICE_NAME);
-        if (ims != mNode->mMsgListenerMap.end()) {
-            for (auto const& listener : ims->second) {
-                listener->onReceivedMessage(humanCode, channelType, ElaphantContact::MakeBinaryMessage(data));
-            }
-        }
+        DistributeBinary(humanCode, channelType, msgInfo->data->toData());
     }
 }
 
@@ -150,6 +123,41 @@ std::vector<std::shared_ptr<PeerListener::MessageListener>> PeerNode::ContactLis
     }
 
     return std::vector<std::shared_ptr<PeerListener::MessageListener>>();
+}
+
+void PeerNode::ContactListener::DistributeBinary(const std::string& humanCode,
+                                ElaphantContact::Channel channelType, const std::vector<uint8_t>& data)
+{
+    std::unique_lock<std::mutex> _lock(mNode->mMsgListenerMutex);
+    auto it = std::search(data.begin(), data.end(), PROTOCOL_APPEND_DATA.begin(), PROTOCOL_APPEND_DATA.end());
+
+    if (it != data.end()) {
+        int index = distance(data.begin(), it);
+        std::vector<uint8_t> protocol(data.begin(), data.begin() + index);
+        std::string jsonStr(protocol.begin(), protocol.end());
+
+        try {
+            Json json = Json::parse(jsonStr);
+            std::string name = toLower(json["serviceName"]);
+            std::vector<uint8_t> binary(data.begin() + index + PROTOCOL_APPEND_DATA.size(), data.end());
+            auto listeners = mNode->mMsgListenerMap.find(name);
+            if (listeners != mNode->mMsgListenerMap.end()) {
+                for (auto const& listener : listeners->second) {
+                    listener->onReceivedMessage(humanCode, channelType, ElaphantContact::MakeBinaryMessage(binary));
+                }
+                return;
+            }
+        } catch (const std::exception& e) {
+            printf("parse json failed: %s\n", jsonStr.c_str());
+        }
+    }
+
+    auto ims = mNode->mMsgListenerMap.find(CHAT_SERVICE_NAME);
+    if (ims != mNode->mMsgListenerMap.end()) {
+        for (auto const& listener : ims->second) {
+            listener->onReceivedMessage(humanCode, channelType, ElaphantContact::MakeBinaryMessage(data));
+        }
+    }
 }
 
 /*************************** PeerNode::ContactDataListener ***************************/

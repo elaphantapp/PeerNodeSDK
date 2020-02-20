@@ -19,6 +19,9 @@ public final class PeerNode {
 
     private static PeerNode sInstance = null;
 
+    final static byte[] PROTOCOL_APPEND_DATA = new byte[]{(byte) 0xC3, (byte) 0x83,
+            (byte) 0xC3, (byte) 0x83, (byte) 0xC3, (byte) 0x83, (byte) 0xC3, (byte) 0x83};
+
     private Contact mContact;
     private PeerNodeListener.Listener mListener;
     private final Map<String, List<PeerNodeListener.MessageListener>> mMessageListeners = new HashMap<>();
@@ -82,36 +85,8 @@ public final class PeerNode {
                         }
                     }
                 } else if (message.type == Contact.Message.Type.MsgBinary) {
-                    byte[] data = message.data.toData();
-                    int index = findInByteArray(data, (byte)0);
-                    List<PeerNodeListener.MessageListener> listeners;
-                    StringBuffer content = new StringBuffer();
                     synchronized (mMessageListeners) {
-                        if (index >= 0) {
-                            byte[] protocol = Arrays.copyOfRange(data, 0, index);
-                            byte[] binary = Arrays.copyOfRange(data, index + 1, data.length);
-                            String str = new String(protocol);
-
-                            try {
-                                JSONObject jobj = new JSONObject(str);
-                                listeners = findMsgListener(str, content);
-                                if (listeners == null) return;
-
-                                for (PeerNodeListener.MessageListener listener : listeners) {
-                                    listener.onReceivedMessage(humanCode, channelType, Contact.MakeBinaryMessage(binary, null));
-                                }
-                                return;
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        listeners = findMsgListener("", content);
-                        if (listeners == null) return;
-
-                        for (PeerNodeListener.MessageListener listener : listeners) {
-                            listener.onReceivedMessage(humanCode, channelType, Contact.MakeBinaryMessage(data, null));
-                        }
+                        distributeBinary(humanCode, channelType, message.data.toData());
                     }
                 }
             }
@@ -150,16 +125,6 @@ public final class PeerNode {
         mContact.setDataListener(contactDataListener);
     }
 
-    private int findInByteArray(byte[] data, byte element) {
-        int index = -1;
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] == element) {
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
 
     private List<PeerNodeListener.MessageListener> findMsgListener(String summary, StringBuffer content) {
         List<PeerNodeListener.MessageListener> lis = null;
@@ -177,6 +142,44 @@ public final class PeerNode {
             lis = mMessageListeners.get(CHAT_SERVICE_NAME);
         }
         return lis;
+    }
+
+    private void distributeBinary(String humanCode, Contact.Channel channelType, byte[] data) {
+        List<PeerNodeListener.MessageListener> lis = null;
+
+        int len = data.length > 100 ? 100 : data.length;
+        byte[] protocol = new byte[len];
+
+        System.arraycopy(data, 0, protocol, 0, len);
+        String src = new String(protocol);
+        String append = new String(PROTOCOL_APPEND_DATA);
+        int index = src.indexOf(append);
+
+        byte[] content = null;
+        if (index >= 0) {
+            byte[] json = Arrays.copyOfRange(data, 0, index);
+            String str = new String(json);
+
+            try {
+                JSONObject jobj = new JSONObject(str);
+                String name = jobj.getString("serviceName");
+                lis = mMessageListeners.get(name.toLowerCase());
+                content = Arrays.copyOfRange(data, index + PROTOCOL_APPEND_DATA.length, data.length);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (lis == null) {
+            content = data;
+            lis = mMessageListeners.get(CHAT_SERVICE_NAME);
+        }
+
+        if (lis == null) return;
+
+        for (PeerNodeListener.MessageListener listener : lis) {
+            listener.onReceivedMessage(humanCode, channelType, Contact.MakeBinaryMessage(content, null));
+        }
     }
 
     public static PeerNode getInstance(String path, String deviceId) {

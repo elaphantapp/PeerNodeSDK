@@ -4,6 +4,7 @@ import org.elastos.sdk.elephantwallet.contact.Contact;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class Connector {
@@ -149,10 +150,10 @@ public final class Connector {
                 json.put("serviceName", mServiceName);
                 json.put("content", "binary");
                 byte[] protocol = json.toString().getBytes();
-                data = new byte[protocol.length + 1 + binary.length];
+                data = new byte[protocol.length + PeerNode.PROTOCOL_APPEND_DATA.length + binary.length];
                 System.arraycopy(protocol, 0, data, 0, protocol.length);
-                data[protocol.length] = 0;
-                System.arraycopy(binary, 0, data, protocol.length + 1, binary.length);
+                System.arraycopy(PeerNode.PROTOCOL_APPEND_DATA, 0, data, protocol.length, PeerNode.PROTOCOL_APPEND_DATA.length);
+                System.arraycopy(binary, 0, data, protocol.length + PeerNode.PROTOCOL_APPEND_DATA.length, binary.length);
             } catch (JSONException e) {
                 e.printStackTrace();
                 return -1;

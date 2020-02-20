@@ -165,7 +165,7 @@ open class Connector {
        let encode = try JSONEncoder().encode(json)
        let str = String(data: encode, encoding: .utf8)!
        data = str.data(using: String.Encoding.utf8)!
-       data.append(UInt8(0))
+       data.append(PeerNode.PROTOCOL_APPEND_DATA)
        data.append(message)
      } catch {
        print("make json failed\n")

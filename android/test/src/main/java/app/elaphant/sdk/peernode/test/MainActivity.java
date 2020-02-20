@@ -346,7 +346,7 @@ public class MainActivity extends Activity {
 
 //        String expireTime = Util.getISO8601Time(new Date(System.currentTimeMillis() + 12 * 3600 * 1000)); // 12小时后消息失效, 不会再发送
 //        pushRequest.setExpireTime(expireTime);
-//        pushRequest.setStoreOffline(true); // 离线消息是否保存,若保存, 在推送时候，用户即使不在线，下一次上线则会收到
+        pushRequest.setStoreOffline(true); // 离线消息是否保存,若保存, 在推送时候，用户即使不在线，下一次上线则会收到
         pushRequest.asyncExecute(new PushRequest.PushCallback() {
             @Override
             public void onFailure(PushRequest request, IOException e) {
