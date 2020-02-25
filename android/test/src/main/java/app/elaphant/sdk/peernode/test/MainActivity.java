@@ -2,23 +2,41 @@ package app.elaphant.sdk.peernode.test;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Process;
+import android.os.SystemClock;
 import android.provider.Settings;
+import android.text.ClipboardManager;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.method.ScrollingMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
 import org.elastos.sdk.elephantwallet.contact.Utils;
+import org.elastos.sdk.elephantwallet.contact.internal.ContactInterface;
 import org.elastos.sdk.keypair.ElastosKeypair;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 
@@ -27,6 +45,8 @@ import app.elaphant.sdk.peernode.PeerNode;
 import app.elaphant.sdk.peernode.PeerNodeListener;
 import app.elaphant.sdk.pushserver.PushRequest;
 import app.elaphant.sdk.pushserver.PushResponse;
+
+import static android.view.View.inflate;
 
 public class MainActivity extends Activity {
     private static final String TAG = "PeerNodeTest";
@@ -45,6 +65,7 @@ public class MainActivity extends Activity {
     private TextView mError;
     private TextView mMessage;
     private TextView mEvent;
+    private boolean mEventScrolled;
 
     private Connector mConnector = null;
 
@@ -58,6 +79,27 @@ public class MainActivity extends Activity {
         mError = findViewById(R.id.txt_error);
         mMessage = findViewById(R.id.txt_message);
         mEvent = findViewById(R.id.txt_event);
+        mEvent.setMovementMethod(ScrollingMovementMethod.getInstance());
+        mEvent.setOnTouchListener((v, m) -> {
+            switch (m.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mEventScrolled = false;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                mEventScrolled = true;
+                break;
+            }
+            return false;
+        });
+        mEvent.setOnClickListener(view -> {
+            if(mEventScrolled) {
+                return;
+            }
+
+            ClipboardManager cm = (ClipboardManager)getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            cm.setText(mEvent.getText().toString());
+            Toast.makeText(getApplicationContext(), "Event Copied!", Toast.LENGTH_SHORT).show();
+        });
 
         mPeerNode = PeerNode.getInstance(getFilesDir().getAbsolutePath(),
                 Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
@@ -141,6 +183,11 @@ public class MainActivity extends Activity {
             return true;
         } else if (item.getItemId() == R.id.send_loop_msg) {
             sendLoopMessage();
+        } else if (item.getItemId() == R.id.batch_send_message) {
+            batchSendMessage();
+        } else if (item.getItemId() == R.id.clear_event) {
+            mEvent.setText("");
+            mEvent.computeScroll();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -182,11 +229,12 @@ public class MainActivity extends Activity {
 
             @Override
             public void onReceivedMessage(String humanCode, Contact.Channel channelType, Contact.Message message) {
-                showMessage(humanCode, message);
+                String msg = "Receive message from " + humanCode + " " + message.data.toString();
+                showMessage(msg);
             }
         });
 
-        return false;
+        return true;
     }
 
     private boolean sendMessage() {
@@ -289,13 +337,30 @@ public class MainActivity extends Activity {
                 Log.w(TAG, "Unprocessed event: " + event);
                 return;
         }
-        String finalText = text;
-        runOnUiThread(() -> mEvent.setText(finalText));
-
+        showEvent(text);
     }
 
-    private void showMessage(String humanCode, Contact.Message message) {
-        runOnUiThread(() -> mMessage.setText("Receive message from " + humanCode + " " + message.data.toString()));
+    public Contact.Channel getCustomChannel() {
+        return mCustomChannelStrategy.getChannel();
+    }
+
+    public void showMessage(String message) {
+        runOnUiThread(() -> mMessage.setText(message));
+    }
+
+    public void showEvent(String event) {
+        runOnUiThread(() -> {
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            SpannableString spannable = new SpannableString(timestamp);
+            spannable.setSpan(new ForegroundColorSpan(Color.BLUE), 0, timestamp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mEvent.append(spannable);
+            mEvent.append(": " + event + "\n");
+            int scrollAmount = mEvent.getLayout().getLineTop(mEvent.getLineCount()) - mEvent.getHeight();
+            if (scrollAmount < 0) {
+                scrollAmount = 0;
+            }
+            mEvent.scrollTo(0, scrollAmount);
+        });
     }
 
     private void showError(String text) {
@@ -391,4 +456,24 @@ public class MainActivity extends Activity {
         builder.create().show();
     }
 
+    private void batchSendMessage() {
+        if (mConnector == null) {
+            boolean ret = createConnector();
+            if(ret == false) {
+                Toast.makeText(this, "Failed to create connector!", Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+
+        BatchMessage.showDialog(mConnector, this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        Helper.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Helper.onActivityResult(this, requestCode, resultCode, data);
+    }
 }

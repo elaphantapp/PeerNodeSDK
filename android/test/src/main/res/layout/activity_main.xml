@@ -29,6 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
+        android:textIsSelectable="true"
         android:textColor="@android:color/holo_green_light"/>
 
 </LinearLayout>
