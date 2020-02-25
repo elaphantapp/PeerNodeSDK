@@ -11,15 +11,20 @@ import android.widget.GridLayout;
 import android.widget.RadioGroup;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
+import org.elastos.sdk.elephantwallet.contact.internal.ContactInterface;
 
 import java.util.List;
 
 import app.elaphant.sdk.peernode.Connector;
+import app.elaphant.sdk.peernode.PeerNode;
+import app.elaphant.sdk.peernode.PeerNodeListener;
 
 import static android.view.View.inflate;
 
 public class BatchMessage {
-    public static void showDialog(Connector connector, MainActivity activity) {
+    public static void showDialog(MainActivity activity) {
+        Connector connector = getFeedbackConnector(activity);
+
         GridLayout rootView = (GridLayout) inflate(activity, R.layout.batch_send_message, null);
 
         AutoCompleteTextView friendCodeView = rootView.findViewById(R.id.friend_code);
@@ -30,9 +35,6 @@ public class BatchMessage {
         friendCodeView.setAdapter(adapter);
         friendCodeView.setThreshold(1);
         friendCodeView.setSingleLine();
-        if(friendList.size() > 0) {
-            friendCodeView.setText(friendList.get(friendList.size() - 1));
-        }
 
         Button scanCodeButton = rootView.findViewById(R.id.scan_friend_code);
         scanCodeButton.setOnClickListener(v -> {
@@ -52,6 +54,27 @@ public class BatchMessage {
             }).start();
         });
         builder.create().show();
+    }
+
+    private static Connector getFeedbackConnector(MainActivity activity) {
+        if(sConnector != null) {
+            return sConnector;
+        }
+        sConnector = new Connector("feedback");
+        sConnector.setMessageListener(new PeerNodeListener.MessageListener() {
+            @Override
+            public void onEvent(Contact.Listener.EventArgs event) {
+                activity.showEvent(event.toString());
+            }
+
+            @Override
+            public void onReceivedMessage(String humanCode, Contact.Channel channelType, Contact.Message message) {
+                String msg = "Receive message from " + humanCode + " " + message.data.toString();
+                activity.showEvent(msg);
+            }
+        });
+
+        return sConnector;
     }
 
     private static void trySendMessage(Connector connector, MainActivity activity, ViewGroup rootView,
@@ -136,4 +159,5 @@ public class BatchMessage {
         return true;
     }
 
+    private static Connector sConnector;
 }

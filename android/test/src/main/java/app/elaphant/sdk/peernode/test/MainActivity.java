@@ -51,10 +51,10 @@ import static android.view.View.inflate;
 public class MainActivity extends Activity {
     private static final String TAG = "PeerNodeTest";
 
-    private static final String mnemonic = "ability cloth cannon buddy together theme uniform erase fossil meadow top pumpkin";
-    private static final String mPrivateKey = "b8e923f4e5c5a3c704bcc02a90ee0e4fa34a5b8f0dd1de1be4eb2c37ffe8e3ea";
-    private static final String mPublicKey = "021e53dc2b8af1548175cba357ae321096065f8d49e3935607bc8844c157bb0859";
-    private static final String mDid = "iZmEF8QifH1tUXnqyqnS2KdhfqZ3aiXxYa";
+    private static final String mnemonic = "brain online voice smile connect bus laundry steel catch foam bitter bulb";
+    private static final String mPrivateKey = "3d8d1d5888e79b815b1f380281f9be0e8ad71e4f4eb64f021cbe6d6f563df2c2";
+    private static final String mPublicKey = "02881e78caa631e79d203295767109cffbf7cc6ffb07970ac47a78141686638cb1";
+    private static final String mDid = "ih82mEYmZYqcyuEgkmobtLNjnAizLDhaGn";
 
     private static final String ANDROID_TEST_APP_KEY = "28334887";
     private static final String ACCESS_KEY = "LTAI4FmvcqWxDbC8auMVkJ1J";
@@ -465,7 +465,7 @@ public class MainActivity extends Activity {
             }
         }
 
-        BatchMessage.showDialog(mConnector, this);
+        BatchMessage.showDialog(this);
     }
 
     @Override
