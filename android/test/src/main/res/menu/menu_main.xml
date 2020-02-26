@@ -14,6 +14,10 @@
         android:title="Send Loop Message" />
     <item android:id="@+id/send_notice"
         android:title="@string/send_notice"/>
+    <item android:id="@+id/batch_send_message"
+        android:title="Batch Send Message"/>
+    <item android:id="@+id/clear_event"
+        android:title="Clear Event"/>
 
 
 </menu>

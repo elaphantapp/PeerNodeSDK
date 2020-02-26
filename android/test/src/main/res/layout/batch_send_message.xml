@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:columnCount="3">
+
+    <TextView android:text="SendTo: "/>
+    <AutoCompleteTextView android:id="@+id/friend_code"
+        android:layout_width="150dp"
+        android:layout_height="match_parent" />
+    <Button android:id="@+id/scan_friend_code"
+        android:text="Scan"/>
+
+    <TextView android:text="Channel: "/>
+    <RadioGroup android:id="@+id/channel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="2"
+        android:orientation="vertical"
+        android:checkedButton="@id/channel_carrier">
+        <RadioButton android:id="@+id/channel_carrier"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Carrier" />
+        <RadioButton android:id="@+id/channel_custom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="CustomChannel" />
+    </RadioGroup>
+
+    <TextView android:text="SendTimes: "/>
+    <EditText android:id="@+id/send_times"
+        android:layout_width="160dp"
+        android:layout_height="match_parent"
+        android:layout_columnSpan="2"
+        android:inputType="numberDecimal"
+        android:text="10" />
+
+
+</GridLayout>
