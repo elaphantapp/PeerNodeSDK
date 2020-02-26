@@ -370,3 +370,20 @@ open class PeerNode {
       return mContact.importUserData(fromFile: fromFile);
   }
 }
+
+extension ContactSDK.Contact.Status {
+    public func toString() -> String {
+        switch self {
+        case .Invalid:
+            return "Invalid"
+        case .WaitForAccept:
+            return "WaitForAccept"
+        case .Offline:
+            return "Offline"
+        case .Online:
+            return "Online"
+        case .Removed:
+            return "Removed"
+        }
+    }
+}

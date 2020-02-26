@@ -28,10 +28,9 @@ class ViewController: UIViewController {
       class Impl: PeerNodeListener.Listener {
         init(_ vc: ViewController) {
           viewCtrl = vc
-          super.init()
         }
 
-        override func onAcquire(request: Contact.Listener.AcquireArgs) -> Data? {
+        func onAcquire(request: Contact.Listener.AcquireArgs) -> Data? {
           let ret = viewCtrl.processAcquire(request: request)
 
           var msg = "onAcquire(): req=\(request.toString())\n"
@@ -41,7 +40,7 @@ class ViewController: UIViewController {
           return ret
         }
 
-        override func onError(errCode: Int, errStr: String, ext: String?) {
+        func onError(errCode: Int, errStr: String, ext: String?) {
           var msg = "\(errCode): \(errStr)"
           msg += "\n\(String(describing: ext))"
           viewCtrl.showError(msg)
@@ -91,14 +90,13 @@ class ViewController: UIViewController {
       class Impl: PeerNodeListener.MessageListener {
         init(_ vc: ViewController) {
           viewCtrl = vc
-          super.init()
         }
 
-        override func onEvent(event: Contact.Listener.EventArgs) {
+        func onEvent(event: Contact.Listener.EventArgs) {
           viewCtrl.processEvent(event: event)
         }
 
-        override func onReceivedMessage(humanCode: String,
+        func onReceivedMessage(humanCode: String,
                                         channelType: Contact.Channel,
                                         message: Contact.Message) {
           var msg = "onRcvdMsg(): from=\(humanCode)\n"
