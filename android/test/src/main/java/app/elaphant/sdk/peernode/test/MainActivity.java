@@ -36,6 +36,7 @@ import org.elastos.sdk.elephantwallet.contact.internal.ContactInterface;
 import org.elastos.sdk.keypair.ElastosKeypair;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -350,9 +351,10 @@ public class MainActivity extends Activity {
 
     public void showEvent(String event) {
         runOnUiThread(() -> {
-            String timestamp = String.valueOf(System.currentTimeMillis());
-            SpannableString spannable = new SpannableString(timestamp);
-            spannable.setSpan(new ForegroundColorSpan(Color.BLUE), 0, timestamp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            String date = sdf.format(new Date(System.currentTimeMillis()));
+            SpannableString spannable = new SpannableString(date);
+            spannable.setSpan(new ForegroundColorSpan(Color.BLUE), 0, date.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             mEvent.append(spannable);
             mEvent.append(": " + event + "\n");
             int scrollAmount = mEvent.getLayout().getLineTop(mEvent.getLineCount()) - mEvent.getHeight();
