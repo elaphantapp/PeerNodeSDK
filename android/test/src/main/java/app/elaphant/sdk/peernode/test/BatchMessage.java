@@ -23,12 +23,10 @@ import static android.view.View.inflate;
 
 public class BatchMessage {
     public static void showDialog(MainActivity activity) {
-        Connector connector = getFeedbackConnector(activity);
-
         GridLayout rootView = (GridLayout) inflate(activity, R.layout.batch_send_message, null);
 
         AutoCompleteTextView friendCodeView = rootView.findViewById(R.id.friend_code);
-        List<String> friendList = connector.listFriendCode();
+        List<String> friendList = PeerNode.getInstance().listFriendCode();
         ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
                                                           android.R.layout.simple_dropdown_item_1line,
                                                           friendList);
@@ -50,17 +48,17 @@ public class BatchMessage {
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
         builder.setPositiveButton("Ok", (dialog, which) -> {
             new Thread(() -> {
-                trySendMessage(connector, activity, rootView, friendList);
+                trySendMessage(activity, rootView, friendList);
             }).start();
         });
         builder.create().show();
     }
 
-    private static Connector getFeedbackConnector(MainActivity activity) {
+    private static Connector getConnector(MainActivity activity, String connectorName) {
         if(sConnector != null) {
             return sConnector;
         }
-        sConnector = new Connector("feedback");
+        sConnector = new Connector(connectorName);
         sConnector.setMessageListener(new PeerNodeListener.MessageListener() {
             @Override
             public void onEvent(Contact.Listener.EventArgs event) {
@@ -77,7 +75,7 @@ public class BatchMessage {
         return sConnector;
     }
 
-    private static void trySendMessage(Connector connector, MainActivity activity, ViewGroup rootView,
+    private static void trySendMessage(MainActivity activity, ViewGroup rootView,
                                        List<String> friendList) {
         AutoCompleteTextView friendCodeView = rootView.findViewById(R.id.friend_code);
         String friendCode = friendCodeView.getText().toString().trim();
@@ -87,7 +85,22 @@ public class BatchMessage {
         }
         activity.showEvent("try to batch send message to " + friendCode);
 
-        boolean ret = ensureFriendOnline(connector, activity, friendCode, friendList);
+        RadioGroup connectorGroupView = rootView.findViewById(R.id.connector);
+        String connectorName = "chat";
+        switch(connectorGroupView.getCheckedRadioButtonId()) {
+            case R.id.connector_feedback:
+                connectorName = "feedback";
+                break;
+        }
+        Connector connector = getConnector(activity, connectorName);
+
+        boolean ret = ensureSelfOnline(connector, activity);
+        if(ret == false) {
+            activity.showEvent("Failed: Ensure friend error");
+            return;
+        }
+
+        ret = ensureFriendOnline(connector, activity, friendCode, friendList);
         if(ret == false) {
             activity.showEvent("Failed: Ensure friend error");
             return;
@@ -98,6 +111,21 @@ public class BatchMessage {
             activity.showEvent("Failed: Send Message error");
             return;
         }
+    }
+
+    private static boolean ensureSelfOnline(Connector connector, MainActivity activity) {
+        while (true) {
+            activity.showEvent("Waiting for user online...");
+
+            Contact.Status status = connector.getStatus();
+            if(status == Contact.Status.Online) {
+                break;
+            }
+
+            try { Thread.sleep(5000); } catch (Exception e) { }
+        }
+
+        return true;
     }
 
     private static boolean ensureFriendOnline(Connector connector, MainActivity activity,

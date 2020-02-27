@@ -11,6 +11,24 @@
     <Button android:id="@+id/scan_friend_code"
         android:text="Scan"/>
 
+    <TextView android:text="Connector: "/>
+    <RadioGroup android:id="@+id/connector"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_columnSpan="2"
+        android:orientation="vertical"
+        android:checkedButton="@id/connector_chat">
+        <RadioButton android:id="@+id/connector_chat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chat" />
+        <RadioButton android:id="@+id/connector_feedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Feedback" />
+    </RadioGroup>
+
+
     <TextView android:text="Channel: "/>
     <RadioGroup android:id="@+id/channel"
         android:layout_width="wrap_content"
