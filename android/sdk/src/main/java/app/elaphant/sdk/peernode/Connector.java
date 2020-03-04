@@ -62,7 +62,14 @@ public final class Connector {
     }
 
     public Contact.UserInfo getUserInfo() {
+        if (mPeerNode == null) return null;
         return mPeerNode.getUserInfo();
+    }
+
+    public int getUserBrief(StringBuffer brief) {
+        if (mPeerNode == null) return -1;
+
+        return mPeerNode.getUserBrief(brief);
     }
 
     public int addFriend(String friendCode, String summary) {

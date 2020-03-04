@@ -31,6 +31,7 @@ public:
     ElaphantContact::Status GetFriendStatus(const std::string& friendCode);
 
     std::shared_ptr<ElaphantContact::UserInfo> GetUserInfo();
+    int GetUserBrief(std::string& brief);
     std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ListFriendInfo();
 
     int SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message);

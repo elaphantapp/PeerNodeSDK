@@ -303,6 +303,10 @@ open class PeerNode {
   public func getUserInfo() -> Contact.UserInfo? {
     return mContact.getUserInfo()
   }
+
+  public func getUserBrief(brief: inout String) -> Int {
+    return mContact.getUserBrief(brief: &brief)
+  }
   
   public func setIdentifyCode(type: Contact.UserInfo.Kind, value: String) -> Int {
     return mContact.setIdentifyCode(type: type, value: value)

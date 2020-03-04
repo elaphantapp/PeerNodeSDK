@@ -511,6 +511,16 @@ std::shared_ptr<ElaphantContact::UserInfo> PeerNode::GetUserInfo()
     return mContact->getUserInfo();
 }
 
+int PeerNode::GetUserBrief(std::string& brief)
+{
+    if (mContact.get() == nullptr) {
+        printf("ElaphantContact not Created!\n");
+        return -1;
+    }
+
+    return mContact->getUserBrief(brief);
+}
+
 std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> PeerNode::ListFriendInfo()
 {
     if (mContact.get() == nullptr) {

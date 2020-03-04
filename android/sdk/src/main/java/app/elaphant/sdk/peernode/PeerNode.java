@@ -277,6 +277,10 @@ public final class PeerNode {
         return mContact.getUserInfo();
     }
 
+    public int getUserBrief(StringBuffer brief) {
+        return mContact.getUserBrief(brief);
+    }
+
     public int setIdentifyCode(Contact.UserInfo.Type type, String value) {
         return mContact.setIdentifyCode(type, value);
     }

@@ -143,6 +143,16 @@ std::shared_ptr<ElaphantContact::UserInfo> Connector::GetUserInfo()
     return mPeerNode->GetUserInfo();
 }
 
+int Connector::GetUserBrief(std::string& brief)
+{
+    if (mPeerNode.get() == nullptr) {
+        printf("mPeerNode not Created!\n");
+        return -1;
+    }
+
+    return mPeerNode->GetUserBrief(brief);
+}
+
 std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> Connector::ListFriendInfo()
 {
     if (mPeerNode.get() == nullptr) {
