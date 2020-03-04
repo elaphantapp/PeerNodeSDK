@@ -73,6 +73,14 @@ open class Connector {
   public func getUserInfo() -> Contact.UserInfo? {
       return mPeerNode?.getUserInfo()
   }
+
+  public func getUserBrief(brief: inout String) -> Int {
+    if (mPeerNode == nil) {
+      return -1
+    }
+
+    return mPeerNode!.getUserBrief(brief: &brief)
+  }
   
   public func addFriend(friendCode: String, summary: String) -> Int {
     if (mPeerNode == nil) {
