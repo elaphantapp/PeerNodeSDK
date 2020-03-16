@@ -92,7 +92,7 @@ open class PeerNode {
               }
               
               for listener in listeners.lis! {
-                listener.onReceivedMessage(humanCode: humanCode, channelType: channelType, message: Contact.MakeTextMessage(text: listeners.content!, cryptoAlgorithm: nil))
+                listener.onReceivedMessage(humanCode: humanCode, channelType: channelType, message: Contact.MakeTextMessage(text: listeners.content!, cryptoAlgorithm: nil, memo: nil))
               }
             }
           }
@@ -191,7 +191,7 @@ open class PeerNode {
               let content = data.subdata(in: (range!.first! + PeerNode.PROTOCOL_APPEND_DATA.count)..<data.count)
               for listener in lis! {
                 listener.onReceivedMessage(humanCode: humanCode, channelType: channelType,
-                                           message: Contact.MakeBinaryMessage(data: content, cryptoAlgorithm: nil))
+                                           message: Contact.MakeBinaryMessage(data: content, cryptoAlgorithm: nil, memo: nil))
               }
               return
             }
@@ -207,7 +207,7 @@ open class PeerNode {
       }
       for listener in lis! {
         listener.onReceivedMessage(humanCode: humanCode, channelType: channelType,
-                                   message: Contact.MakeBinaryMessage(data: data, cryptoAlgorithm: nil))
+                                   message: Contact.MakeBinaryMessage(data: data, cryptoAlgorithm: nil, memo: nil))
       }
     }
   }

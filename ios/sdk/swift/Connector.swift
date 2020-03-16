@@ -146,7 +146,7 @@ open class Connector {
     }
    
     return mPeerNode!.sendMessage(friendCode: friendCode, channel: channel,
-                                  message: Contact.MakeTextMessage(text: data, cryptoAlgorithm: nil))
+                                  message: Contact.MakeTextMessage(text: data, cryptoAlgorithm: nil, memo: nil))
   }
   
   public func sendBinaryMessage(friendCode: String, channel: Contact.Channel, message: Data) -> Int {
@@ -176,7 +176,7 @@ open class Connector {
     }
 
     return mPeerNode!.sendMessage(friendCode: friendCode, channel: channel,
-                                  message: Contact.MakeBinaryMessage(data: data, cryptoAlgorithm: nil))
+                                  message: Contact.MakeBinaryMessage(data: data, cryptoAlgorithm: nil, memo: nil))
   }
 
 }
