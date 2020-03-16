@@ -183,8 +183,8 @@ class ViewController: UIViewController {
     }
 
     let ret = mConnector!.sendMessage(friendCode: info!.humanCode!,
-                                    channel: mCustomChannelStrategy!.getChannel(),
-                                    message: "test loop message")
+                                      channel: mCustomChannelStrategy!.getChannel(),
+                                      message: "test loop message")
     if(ret < 0) {
       showToast("Failed to call testLoopMessage() ret=\(ret)")
     }

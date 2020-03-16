@@ -81,7 +81,7 @@ public final class PeerNode {
                         if (listeners == null) return;
 
                         for (PeerNodeListener.MessageListener listener : listeners) {
-                            listener.onReceivedMessage(humanCode, channelType, Contact.MakeTextMessage(content.toString(), null));
+                            listener.onReceivedMessage(humanCode, channelType, Contact.MakeTextMessage(content.toString(), null, null));
                         }
                     }
                 } else if (message.type == Contact.Message.Type.MsgBinary) {
@@ -178,7 +178,7 @@ public final class PeerNode {
         if (lis == null) return;
 
         for (PeerNodeListener.MessageListener listener : lis) {
-            listener.onReceivedMessage(humanCode, channelType, Contact.MakeBinaryMessage(content, null));
+            listener.onReceivedMessage(humanCode, channelType, Contact.MakeBinaryMessage(content, null, null));
         }
     }
 

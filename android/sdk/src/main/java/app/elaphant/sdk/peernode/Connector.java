@@ -142,7 +142,7 @@ public final class Connector {
             data = message;
         }
 
-        return mPeerNode.sendMessage(friendCode, channel, Contact.MakeTextMessage(data, null));
+        return mPeerNode.sendMessage(friendCode, channel, Contact.MakeTextMessage(data, null, null));
     }
 
     public int sendBinaryMessage(String friendCode, Contact.Channel channel, byte[] binary) {
@@ -169,6 +169,6 @@ public final class Connector {
             data = binary;
         }
 
-        return mPeerNode.sendMessage(friendCode, channel, Contact.MakeBinaryMessage(data, null));
+        return mPeerNode.sendMessage(friendCode, channel, Contact.MakeBinaryMessage(data, null, null));
     }
 }
