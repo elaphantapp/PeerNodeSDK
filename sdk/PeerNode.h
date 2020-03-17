@@ -34,9 +34,7 @@ private:
     private:
         std::vector<std::shared_ptr<PeerListener::MessageListener>> FindListener(const std::string& content, std::string& out);
 
-        void DistributeBinary(const std::string& humanCode,
-                                ElaphantContact::Channel channelType,
-                                const std::vector<uint8_t>& data);
+        std::vector<std::shared_ptr<PeerListener::MessageListener>> FindListener(const std::string& memo);
 
     private:
         PeerNode* mNode;
@@ -113,8 +111,8 @@ public:
     int GetUserBrief(std::string& brief);
     std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ListFriendInfo();
 
-    int SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message);
-    int SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary);
+    int64_t SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message);
+    int64_t SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary);
 
     int ExportUserData(const std::string& toFile);
     int ImportUserData(const std::string& fromFile);
@@ -130,6 +128,9 @@ private:
 
     std::string GetDid();
 
+    int64_t SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& memo, const std::string& message);
+    int64_t SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& memo, const std::vector<uint8_t>& binary);
+
 private:
     static std::shared_ptr<PeerNode> sInstance;
 
@@ -144,6 +145,8 @@ private:
     std::shared_ptr<ElaphantContact> mContact;
     std::shared_ptr<ElaphantContact::Listener> mContactListener;
     std::shared_ptr<ElaphantContact::DataListener> mContactDataListener;
+
+    friend class Connector;
 };
 
 }

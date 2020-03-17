@@ -163,54 +163,29 @@ std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> Connector::ListFriendI
     return mPeerNode->ListFriendInfo();
 }
 
-int Connector::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message)
+std::string Connector::GetMemo(const std::string& friendCode)
 {
-    if (mPeerNode.get() == nullptr) {
-        printf("PeerNode not created!\n");
-        return -1;
-    }
-
-    bool isDid = friendCode.at(0) == 'i' && isAddressValid(friendCode.c_str());
-
-    std::string data;
-    if (isDid) {
-        Json json;
-        json["serviceName"] = mServiceName;
-        json["content"] = message;
-        data = json.dump();
-    }
-    else {
-        data = message;
-    }
-
-    return mPeerNode->SendMessage(friendCode, channel, data);
+    return friendCode.at(0) == 'i' && isAddressValid(friendCode.c_str()) ? mServiceName : "";
 }
 
-int Connector::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary)
+int64_t Connector::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message)
 {
     if (mPeerNode.get() == nullptr) {
         printf("PeerNode not created!\n");
         return -1;
     }
 
-    bool isDid = friendCode.at(0) == 'i' && isAddressValid(friendCode.c_str());
+    return mPeerNode->SendMessage(friendCode, channel, GetMemo(friendCode), message);
+}
 
-    std::vector<uint8_t> data;
-    if (isDid) {
-        Json json;
-        json["serviceName"] = mServiceName;
-        json["content"] = "bianry";
-        std::string jsonStr = json.dump();
-        std::vector<uint8_t> bytes(jsonStr.begin(), jsonStr.end());
-        data.insert(data.end(), bytes.begin(), bytes.end());
-        data.insert(data.end(), PROTOCOL_APPEND_DATA.begin(), PROTOCOL_APPEND_DATA.end());
-        data.insert(data.end(), binary.begin(), binary.end());
-    }
-    else {
-        data = binary;
+int64_t Connector::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary)
+{
+    if (mPeerNode.get() == nullptr) {
+        printf("PeerNode not created!\n");
+        return -1;
     }
 
-    return mPeerNode->SendMessage(friendCode, channel, data);
+    return mPeerNode->SendMessage(friendCode, channel, GetMemo(friendCode), binary);
 }
 
 

@@ -67,6 +67,17 @@ open class PeerNode {
                 listener.onEvent(event: args)
               }
             }
+          } else if (event.type == EventArgs.Kind.MessageAck) {
+            PeerNode.WithLock(lock: peerNode.mMessageListeners) {
+              let ackEvent = event as! Contact.Listener.MsgAckEvent
+              let listeners = peerNode.findMsgListener(memo: ackEvent.memo)
+              if (listeners == nil) {
+                return
+              }
+              for listener in listeners! {
+                listener.onEvent(event: event)
+              }
+            }
           } else {
             PeerNode.WithLock(lock: peerNode.mMessageListeners) {
               for (_, listeners) in peerNode.mMessageListeners {
@@ -84,21 +95,15 @@ open class PeerNode {
           msg += "onRcvdMsg(): crypto=" + (message.cryptoAlgorithm ?? "nil") + "\n"
           print("\(msg)")
 
-          if(message.type == Contact.Message.Kind.MsgText) {
-            PeerNode.WithLock(lock: peerNode.mMessageListeners) {
-              let listeners = peerNode.findMsgListener(summary: message.data.toString())
-              if (listeners.lis == nil) {
-                return
-              }
-              
-              for listener in listeners.lis! {
-                listener.onReceivedMessage(humanCode: humanCode, channelType: channelType, message: Contact.MakeTextMessage(text: listeners.content!, cryptoAlgorithm: nil, memo: nil))
-              }
+          PeerNode.WithLock(lock: peerNode.mMessageListeners) {
+            let listeners = peerNode.findMsgListener(memo: message.memo!)
+            if (listeners == nil) {
+              return
             }
-          }
-          else if (message.type == Contact.Message.Kind.MsgBinary) {
-            let data = message.data.toData()
-            peerNode.distributeBinary(humanCode: humanCode, channelType: channelType, data: data!)
+
+            for listener in listeners! {
+              listener.onReceivedMessage(humanCode: humanCode, channelType: channelType, message: message)
+            }
           }
         }
 
@@ -176,42 +181,14 @@ open class PeerNode {
     return (lis, content)
   }
 
-  private func distributeBinary(humanCode: String, channelType: Contact.Channel, data: Data) {
-    let range = data.range(of: PeerNode.PROTOCOL_APPEND_DATA)
-    PeerNode.WithLock(lock: mMessageListeners) {
-      var lis: [PeerNodeListener.MessageListener]?
-      if range != nil {
-        let json = data.subdata(in: 0..<range!.first!)
-        do {
-          let json = try JSONSerialization.jsonObject(with: json, options: .allowFragments)
-          let name = (json as? [String: AnyObject])?["serviceName"] as? String
-          if (name != nil) {
-            lis = mMessageListeners[name!.lowercased()]
-            if lis != nil {
-              let content = data.subdata(in: (range!.first! + PeerNode.PROTOCOL_APPEND_DATA.count)..<data.count)
-              for listener in lis! {
-                listener.onReceivedMessage(humanCode: humanCode, channelType: channelType,
-                                           message: Contact.MakeBinaryMessage(data: content, cryptoAlgorithm: nil, memo: nil))
-              }
-              return
-            }
-          }
-        } catch {
-          print("parse json failed\n");
-        }
-      }
-
+  private func findMsgListener(memo: String) -> [PeerNodeListener.MessageListener]? {
+    var lis: [PeerNodeListener.MessageListener]? = mMessageListeners[memo.lowercased()]
+    if (lis == nil) {
       lis = mMessageListeners["chat"]
-      if lis == nil {
-        return
-      }
-      for listener in lis! {
-        listener.onReceivedMessage(humanCode: humanCode, channelType: channelType,
-                                   message: Contact.MakeBinaryMessage(data: data, cryptoAlgorithm: nil, memo: nil))
-      }
     }
+    return lis
   }
-  
+
   // create instance if sInstance is null.
   static public func GetInstance(path: String, deviceId: String) -> PeerNode {
     if (sInstance == nil) {
@@ -344,10 +321,14 @@ open class PeerNode {
     return mContact.getStatus(humanCode: friendCode)
   }
   
-  public func sendMessage(friendCode: String, channel: Contact.Channel, message: Contact.Message) -> Int {
-    return mContact.sendMessage(friendCode: friendCode,
-                                channelType: channel,
-                                message: message)
+  public func sendMessage(friendCode: String, channel: Contact.Channel, message: Contact.Message) -> Int64 {
+    let ret = Int64(mContact.sendMessage(friendCode: friendCode,
+                                     channelType: channel,
+                                     message: message))
+    if (ret < 0) {
+      return ret
+    }
+    return message.nanoTime
   }
   
   public func pullFileAsync(friendCode: String, fileInfo: Contact.Message.FileData) -> Int {

@@ -24,6 +24,13 @@ void ConnectorTest::MessageListener::onEvent(ElaphantContact::Listener::EventArg
         printf("Serice %s received %s info changed %s\n", mOutter->mName.c_str(), event.humanCode.c_str(), content.c_str());
         break;
     }
+    case ElaphantContact::Listener::EventType::MessageAck:
+    {
+        auto ackEvent = dynamic_cast<ElaphantContact::Listener::MsgAckEvent*>(&event);
+        std::string content = ackEvent->toString();
+        printf("Serice %s received %s message ack %s\n", mOutter->mName.c_str(), event.humanCode.c_str(), content.c_str());
+        break;
+    }
     default:
         printf("Unprocessed event: %d", static_cast<int>(event.type));
         break;

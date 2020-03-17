@@ -13,6 +13,7 @@ const char* c_help = \
     "s  start     create and start peer node.\n" \
     "c  conn      test connector.\n" \
     "f  friends   get friend list.\n"\
+    "a  add       add friend. a [friendCode].\n"\
     "m  message   send message to friend. m [friendCode] [text].\n"\
     "b  binary    send binary message to friend. b [friendCode].\n"\
     "l  loop      test loop message by custom channel. l [text].\n"\
@@ -33,6 +34,7 @@ void listFriends();
 void sendMessage(const std::string& friendCode, const std::string& message);
 void sendBinaryMessage(const std::string& friendCode);
 void sendLoopMessage(const std::string& message);
+void addFriend(const std::string& friendCode);
 
 std::shared_ptr<elastos::PeerNode> gPeerNode = nullptr;
 std::shared_ptr<ConnectorTest> gConnector = nullptr;
@@ -106,6 +108,9 @@ int main(int argc, char* argv[])
             }
             else if (!cmd.compare("l") || !cmd.compare("loop")) {
                 sendLoopMessage(v[1]);
+            }
+            else if (!cmd.compare("a") || !cmd.compare("add")) {
+                addFriend(v[1]);
             }
         }
     }
@@ -223,6 +228,17 @@ void listFriends()
     const auto& friendList = gPeerNode->ListFriendInfo();
 }
 
+void addFriend(const std::string& friendCode)
+{
+    if (gConnector == nullptr) {
+        printf("Please create connector first!\n");
+        return;
+    }
+
+    int ret = gConnector->mConnector->AddFriend(friendCode, "hello");
+    printf("add friend result %d\n", ret);
+}
+
 void sendMessage(const std::string& friendCode, const std::string& message)
 {
     if (gConnector == nullptr) {
@@ -230,8 +246,8 @@ void sendMessage(const std::string& friendCode, const std::string& message)
         return;
     }
 
-    int ret = gConnector->mConnector->SendMessage(friendCode, ElaphantContact::Channel::Carrier, message);
-    printf("send text message ret %d\n", ret);
+    int64_t ret = gConnector->mConnector->SendMessage(friendCode, ElaphantContact::Channel::Carrier, message);
+    printf("send text message ret %lld\n", ret);
 }
 
 void sendBinaryMessage(const std::string& friendCode)
@@ -243,8 +259,8 @@ void sendBinaryMessage(const std::string& friendCode)
 
     std::vector<uint8_t> binary = {2, 7, 0, 255, 255};
 
-    int ret = gConnector->mConnector->SendMessage(friendCode, ElaphantContact::Channel::Carrier, binary);
-    printf("send binary message ret %d\n", ret);
+    int64_t ret = gConnector->mConnector->SendMessage(friendCode, ElaphantContact::Channel::Carrier, binary);
+    printf("send binary message ret %lld\n", ret);
 }
 
 void sendLoopMessage(const std::string& message)
@@ -254,6 +270,6 @@ void sendLoopMessage(const std::string& message)
         return;
     }
 
-    int ret = gConnector->mConnector->SendMessage(testDid, gChannelStrategy->getChannelId(), message);
-    printf("send loop message ret %d\n", ret);
+    int64_t ret = gConnector->mConnector->SendMessage(testDid, gChannelStrategy->getChannelId(), message);
+    printf("send loop message ret %lld\n", ret);
 }
