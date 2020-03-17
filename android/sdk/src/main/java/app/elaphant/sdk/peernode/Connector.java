@@ -122,53 +122,19 @@ public final class Connector {
         return mPeerNode.getFriendStatus(friendCode);
     }
 
-    public int sendMessage(String friendCode, Contact.Channel channel, String message) {
-        if (mPeerNode == null) return -1;
-
-        boolean isDidFriend = Contact.IsDidFriend(friendCode);
-
-        String data;
-        if (isDidFriend) {
-            try {
-                JSONObject json = new JSONObject();
-                json.put("serviceName", mServiceName);
-                json.put("content", message);
-                data = json.toString();
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return -1;
-            }
-        } else {
-            data = message;
-        }
-
-        return mPeerNode.sendMessage(friendCode, channel, Contact.MakeTextMessage(data, null, null));
+    private String getMemo(String friendCode) {
+        return Contact.IsDidFriend(friendCode) ? mServiceName : "";
     }
 
-    public int sendBinaryMessage(String friendCode, Contact.Channel channel, byte[] binary) {
+    public long sendMessage(String friendCode, Contact.Channel channel, String message) {
         if (mPeerNode == null) return -1;
 
-        boolean isDidFriend = Contact.IsDidFriend(friendCode);
+        return mPeerNode.sendMessage(friendCode, channel, Contact.MakeTextMessage(message, null, getMemo(friendCode)));
+    }
 
-        byte[] data;
-        if (isDidFriend) {
-            try {
-                JSONObject json = new JSONObject();
-                json.put("serviceName", mServiceName);
-                json.put("content", "binary");
-                byte[] protocol = json.toString().getBytes();
-                data = new byte[protocol.length + PeerNode.PROTOCOL_APPEND_DATA.length + binary.length];
-                System.arraycopy(protocol, 0, data, 0, protocol.length);
-                System.arraycopy(PeerNode.PROTOCOL_APPEND_DATA, 0, data, protocol.length, PeerNode.PROTOCOL_APPEND_DATA.length);
-                System.arraycopy(binary, 0, data, protocol.length + PeerNode.PROTOCOL_APPEND_DATA.length, binary.length);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return -1;
-            }
-        } else {
-            data = binary;
-        }
+    public long sendBinaryMessage(String friendCode, Contact.Channel channel, byte[] binary) {
+        if (mPeerNode == null) return -1;
 
-        return mPeerNode.sendMessage(friendCode, channel, Contact.MakeBinaryMessage(data, null, null));
+        return mPeerNode.sendMessage(friendCode, channel, Contact.MakeBinaryMessage(binary, null, getMemo(friendCode)));
     }
 }

@@ -298,6 +298,11 @@ class ViewController: UIViewController {
         let msg = event.humanCode + " info changed: " + infoEvent.toString()
         showEvent(msg)
         break
+      case .MessageAck:
+        let ackEvent = event as! Contact.Listener.MsgAckEvent
+        let msg = event.humanCode + " message ack: " + ackEvent.toString()
+        showEvent(msg)
+        break
     }
   }
 

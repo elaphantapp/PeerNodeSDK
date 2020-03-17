@@ -8,7 +8,6 @@ import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +17,6 @@ public final class PeerNode {
     public static String CHAT_SERVICE_NAME = "chat";
 
     private static PeerNode sInstance = null;
-
-    final static byte[] PROTOCOL_APPEND_DATA = new byte[]{(byte) 0xC3, (byte) 0x83,
-            (byte) 0xC3, (byte) 0x83, (byte) 0xC3, (byte) 0x83, (byte) 0xC3, (byte) 0x83};
 
     private Contact mContact;
     private PeerNodeListener.Listener mListener;
@@ -56,6 +52,17 @@ public final class PeerNode {
                             listener.onEvent(event);
                         }
                     }
+                } else if (event.type == EventArgs.Type.MessageAck) {
+                    synchronized (mMessageListeners) {
+                        MsgAckEvent ackEvent = (MsgAckEvent) event;
+                        List<PeerNodeListener.MessageListener> listeners = findListenerByMemo(ackEvent.memo);
+                        if (listeners == null) return;
+
+                        for (PeerNodeListener.MessageListener listener : listeners) {
+                            listener.onEvent(event);
+                        }
+                    }
+
                 } else {
                     synchronized (mMessageListeners) {
                         for (List<PeerNodeListener.MessageListener> listeners : mMessageListeners.values()) {
@@ -74,19 +81,12 @@ public final class PeerNode {
                 msg += "onRcvdMsg(): crypto=" + message.cryptoAlgorithm + "\n";
                 Log.d(TAG, msg);
 
-                if (message.type == Contact.Message.Type.MsgText) {
-                    synchronized (mMessageListeners) {
-                        StringBuffer content = new StringBuffer();
-                        List<PeerNodeListener.MessageListener> listeners = findMsgListener(message.data.toString(), content);
-                        if (listeners == null) return;
+                synchronized (mMessageListeners) {
+                    List<PeerNodeListener.MessageListener> listeners = findListenerByMemo(message.memo);
+                    if (listeners == null) return;
 
-                        for (PeerNodeListener.MessageListener listener : listeners) {
-                            listener.onReceivedMessage(humanCode, channelType, Contact.MakeTextMessage(content.toString(), null, null));
-                        }
-                    }
-                } else if (message.type == Contact.Message.Type.MsgBinary) {
-                    synchronized (mMessageListeners) {
-                        distributeBinary(humanCode, channelType, message.data.toData());
+                    for (PeerNodeListener.MessageListener listener : listeners) {
+                        listener.onReceivedMessage(humanCode, channelType, message);
                     }
                 }
             }
@@ -144,42 +144,12 @@ public final class PeerNode {
         return lis;
     }
 
-    private void distributeBinary(String humanCode, Contact.Channel channelType, byte[] data) {
-        List<PeerNodeListener.MessageListener> lis = null;
-
-        int len = data.length > 100 ? 100 : data.length;
-        byte[] protocol = new byte[len];
-
-        System.arraycopy(data, 0, protocol, 0, len);
-        String src = new String(protocol);
-        String append = new String(PROTOCOL_APPEND_DATA);
-        int index = src.indexOf(append);
-
-        byte[] content = null;
-        if (index >= 0) {
-            byte[] json = Arrays.copyOfRange(data, 0, index);
-            String str = new String(json);
-
-            try {
-                JSONObject jobj = new JSONObject(str);
-                String name = jobj.getString("serviceName");
-                lis = mMessageListeners.get(name.toLowerCase());
-                content = Arrays.copyOfRange(data, index + PROTOCOL_APPEND_DATA.length, data.length);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
+    private List<PeerNodeListener.MessageListener> findListenerByMemo(String memo) {
+        List<PeerNodeListener.MessageListener> lis = mMessageListeners.get(memo.toLowerCase());
         if (lis == null) {
-            content = data;
             lis = mMessageListeners.get(CHAT_SERVICE_NAME);
         }
-
-        if (lis == null) return;
-
-        for (PeerNodeListener.MessageListener listener : lis) {
-            listener.onReceivedMessage(humanCode, channelType, Contact.MakeBinaryMessage(content, null, null));
-        }
+        return lis;
     }
 
     public static PeerNode getInstance(String path, String deviceId) {
@@ -317,8 +287,10 @@ public final class PeerNode {
         return mContact.getStatus(friendCode);
     }
 
-    public int sendMessage(String friendCode, Contact.Channel channel, Contact.Message message) {
-        return mContact.sendMessage(friendCode, channel, message);
+    public long sendMessage(String friendCode, Contact.Channel channel, Contact.Message message) {
+        long ret = mContact.sendMessage(friendCode, channel, message);
+        if (ret < 0) return ret;
+        return message.nanoTime;
     }
 
     public int pullFileAsync(String friendCode, Contact.Message.FileData fileInfo) {

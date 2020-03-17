@@ -179,7 +179,7 @@ public class BatchMessage {
         for(int idx = 0; idx < sendTimes; idx++) {
             int finalIdx = idx;
             new Thread(() -> {
-                int ret = connector.sendMessage(friendCode, channel, "BatchMessage: " + finalIdx);
+                long ret = connector.sendMessage(friendCode, channel, "BatchMessage: " + finalIdx);
                 activity.showEvent("Send `BatchMessage " + finalIdx + "` ret=" + ret);
             }).start();
         }

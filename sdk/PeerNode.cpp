@@ -50,6 +50,16 @@ void PeerNode::ContactListener::onEvent(ContactListener::EventArgs& event)
         }
         break;
     }
+    case ElaphantContact::Listener::EventType::MessageAck:
+    {
+        auto ackEvent = dynamic_cast<ElaphantContact::Listener::MsgAckEvent*>(&event);
+        auto listeners = FindListener(ackEvent->memo);
+        if (listeners.size() == 0) return;
+        for (auto const& listener : listeners) {
+            listener->onEvent(event);
+        }
+        break;
+    }
     default:
     {
         std::unique_lock<std::mutex> _lock(mNode->mMsgListenerMutex);
@@ -69,17 +79,10 @@ void PeerNode::ContactListener::onReceivedMessage(const std::string& humanCode,
                         ElaphantContact::Channel channelType,
                         std::shared_ptr<ElaphantContact::Message> msgInfo)
 {
-    if (msgInfo->type == ElaphantContact::Message::Type::MsgText) {
-        std::string content;
-        auto listeners = FindListener(msgInfo->data->toString(), content);
-        if (listeners.size() == 0) return;
-        for (auto const& listener : listeners) {
-            listener->onReceivedMessage(humanCode, channelType, ElaphantContact::MakeTextMessage(content));
-        }
-
-    }
-    else if (msgInfo->type == ElaphantContact::Message::Type::MsgBinary) {
-        DistributeBinary(humanCode, channelType, msgInfo->data->toData());
+    auto listeners = FindListener(msgInfo->memo);
+    if (listeners.size() == 0) return;
+    for (auto const& listener : listeners) {
+        listener->onReceivedMessage(humanCode, channelType, msgInfo);
     }
 }
 
@@ -125,39 +128,21 @@ std::vector<std::shared_ptr<PeerListener::MessageListener>> PeerNode::ContactLis
     return std::vector<std::shared_ptr<PeerListener::MessageListener>>();
 }
 
-void PeerNode::ContactListener::DistributeBinary(const std::string& humanCode,
-                                ElaphantContact::Channel channelType, const std::vector<uint8_t>& data)
+std::vector<std::shared_ptr<PeerListener::MessageListener>> PeerNode::ContactListener::FindListener(const std::string& memo)
 {
     std::unique_lock<std::mutex> _lock(mNode->mMsgListenerMutex);
-    auto it = std::search(data.begin(), data.end(), PROTOCOL_APPEND_DATA.begin(), PROTOCOL_APPEND_DATA.end());
 
-    if (it != data.end()) {
-        int index = distance(data.begin(), it);
-        std::vector<uint8_t> protocol(data.begin(), data.begin() + index);
-        std::string jsonStr(protocol.begin(), protocol.end());
-
-        try {
-            Json json = Json::parse(jsonStr);
-            std::string name = toLower(json["serviceName"]);
-            std::vector<uint8_t> binary(data.begin() + index + PROTOCOL_APPEND_DATA.size(), data.end());
-            auto listeners = mNode->mMsgListenerMap.find(name);
-            if (listeners != mNode->mMsgListenerMap.end()) {
-                for (auto const& listener : listeners->second) {
-                    listener->onReceivedMessage(humanCode, channelType, ElaphantContact::MakeBinaryMessage(binary));
-                }
-                return;
-            }
-        } catch (const std::exception& e) {
-            printf("parse json failed: %s\n", jsonStr.c_str());
-        }
+    auto listeners = mNode->mMsgListenerMap.find(toLower(memo));
+    if (listeners != mNode->mMsgListenerMap.end()) {
+        return listeners->second;
     }
 
     auto ims = mNode->mMsgListenerMap.find(CHAT_SERVICE_NAME);
     if (ims != mNode->mMsgListenerMap.end()) {
-        for (auto const& listener : ims->second) {
-            listener->onReceivedMessage(humanCode, channelType, ElaphantContact::MakeBinaryMessage(data));
-        }
+        return ims->second;
     }
+
+    return std::vector<std::shared_ptr<PeerListener::MessageListener>>();
 }
 
 /*************************** PeerNode::ContactDataListener ***************************/
@@ -531,36 +516,14 @@ std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> PeerNode::ListFriendIn
     return mContact->listFriendInfo();
 }
 
-int PeerNode::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message)
+int64_t PeerNode::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message)
 {
-    if (mContact.get() == nullptr) {
-        printf("ElaphantContact not Created!\n");
-        return -1;
-    }
-
-    auto msgInfo = ElaphantContact::MakeTextMessage(message);
-    if(msgInfo == nullptr) {
-        printf("Failed to make text message.");
-        return -1;
-    }
-
-    return mContact->sendMessage(friendCode.c_str(), channel, msgInfo);
+    return SendMessage(friendCode, channel, "", message);
 }
 
-int PeerNode::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary)
+int64_t PeerNode::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary)
 {
-    if (mContact.get() == nullptr) {
-        printf("ElaphantContact not Created!\n");
-        return -1;
-    }
-
-    auto msgInfo = ElaphantContact::MakeBinaryMessage(binary);
-    if(msgInfo == nullptr) {
-        printf("Failed to make binary message.");
-        return -1;
-    }
-
-    return mContact->sendMessage(friendCode.c_str(), channel, msgInfo);
+    return SendMessage(friendCode, channel, "", binary);
 }
 
 int PeerNode::ExportUserData(const std::string& toFile)
@@ -581,6 +544,47 @@ int PeerNode::ImportUserData(const std::string& fromFile)
     }
 
     return mContact->importUserData(fromFile);
+}
+
+int64_t PeerNode::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel,
+            const std::string& memo, const std::string& message)
+{
+    if (mContact.get() == nullptr) {
+        printf("ElaphantContact not Created!\n");
+        return -1;
+    }
+
+    auto msgInfo = ElaphantContact::MakeTextMessage(message, "", memo);
+    if(msgInfo == nullptr) {
+        printf("Failed to make text message.");
+        return -1;
+    }
+
+    int64_t ret =  mContact->sendMessage(friendCode.c_str(), channel, msgInfo);
+    if (ret < 0) return ret;
+
+    return msgInfo->nanoTime;
+}
+
+int64_t PeerNode::SendMessage(const std::string& friendCode, ElaphantContact::Channel channel,
+            const std::string& memo, const std::vector<uint8_t>& binary)
+{
+
+    if (mContact.get() == nullptr) {
+        printf("ElaphantContact not Created!\n");
+        return -1;
+    }
+
+    auto msgInfo = ElaphantContact::MakeBinaryMessage(binary, "", memo);
+    if(msgInfo == nullptr) {
+        printf("Failed to make binary message.");
+        return -1;
+    }
+
+    int64_t ret =  mContact->sendMessage(friendCode.c_str(), channel, msgInfo);
+    if (ret < 0) return ret;
+
+    return msgInfo->nanoTime;
 }
 
 }

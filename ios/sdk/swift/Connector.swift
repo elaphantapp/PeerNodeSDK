@@ -129,62 +129,27 @@ open class Connector {
   public func getFriendStatus(friendCode: String) -> Contact.Status {
     return mPeerNode?.getFriendStatus(friendCode: friendCode) ?? Contact.Status.Invalid
   }
-  
-  public func sendMessage(friendCode: String, channel: Contact.Channel, message: String) -> Int {
-   if (mPeerNode == nil) {
-     return -1
-   }
 
-    var data: String
-    let isDidFriend = ContactSDK.Contact.IsDidFriend(friendCode: friendCode)
-    if (isDidFriend) {
-     do {
-       let json = [
-         "serviceName": mServiceName,
-         "content": message,
-       ]
-       let encode = try JSONEncoder().encode(json)
-       data = String(data: encode, encoding: .utf8)!
-     } catch {
-       print("make json failed\n")
-       return -1
-     }
-    } else {
-      data = message
+  private func getMemo(friendCode:String) -> String {
+    return ContactSDK.Contact.IsDidFriend(friendCode: friendCode) ? mServiceName : ""
+  }
+
+  public func sendMessage(friendCode: String, channel: Contact.Channel, message: String) -> Int64 {
+    if (mPeerNode == nil) {
+     return -1
     }
-   
+
     return mPeerNode!.sendMessage(friendCode: friendCode, channel: channel,
-                                  message: Contact.MakeTextMessage(text: data, cryptoAlgorithm: nil, memo: nil))
+                                  message: Contact.MakeTextMessage(text: message, cryptoAlgorithm: nil, memo: getMemo(friendCode: friendCode)))
   }
   
-  public func sendBinaryMessage(friendCode: String, channel: Contact.Channel, message: Data) -> Int {
+  public func sendBinaryMessage(friendCode: String, channel: Contact.Channel, message: Data) -> Int64 {
     if (mPeerNode == nil) {
       return -1
     }
 
-    var data: Data
-    let isDidFriend = ContactSDK.Contact.IsDidFriend(friendCode: friendCode)
-    if (isDidFriend) {
-     do {
-       let json = [
-         "serviceName": mServiceName,
-         "content": "binary",
-       ]
-       let encode = try JSONEncoder().encode(json)
-       let str = String(data: encode, encoding: .utf8)!
-       data = str.data(using: String.Encoding.utf8)!
-       data.append(PeerNode.PROTOCOL_APPEND_DATA)
-       data.append(message)
-     } catch {
-       print("make json failed\n")
-       return -1
-     }
-    } else {
-      data = message
-    }
-
     return mPeerNode!.sendMessage(friendCode: friendCode, channel: channel,
-                                  message: Contact.MakeBinaryMessage(data: data, cryptoAlgorithm: nil, memo: nil))
+                                  message: Contact.MakeBinaryMessage(data: message, cryptoAlgorithm: nil, memo: getMemo(friendCode: friendCode)))
   }
 
 }

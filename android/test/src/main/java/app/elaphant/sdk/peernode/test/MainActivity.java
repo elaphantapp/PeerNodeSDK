@@ -334,6 +334,10 @@ public class MainActivity extends Activity {
                 Contact.Listener.InfoEvent infoEvent = (Contact.Listener.InfoEvent) event;
                 text = event.humanCode + " info changed: " + infoEvent.toString();
                 break;
+            case MessageAck:
+                Contact.Listener.MsgAckEvent ackEvent = (Contact.Listener.MsgAckEvent) event;
+                text = event.humanCode + " message ack: " + ackEvent.toString();
+                break;
             default:
                 Log.w(TAG, "Unprocessed event: " + event);
                 return;

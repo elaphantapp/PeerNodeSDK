@@ -34,12 +34,14 @@ public:
     int GetUserBrief(std::string& brief);
     std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ListFriendInfo();
 
-    int SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message);
-    int SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary);
+    int64_t SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::string& message);
+    int64_t SendMessage(const std::string& friendCode, ElaphantContact::Channel channel, const std::vector<uint8_t>& binary);
 
 private:
     void RemoveMessageListener();
     void RemoveDataListener();
+
+    std::string GetMemo(const std::string& friendCode);
 
 private:
     std::string mServiceName;
