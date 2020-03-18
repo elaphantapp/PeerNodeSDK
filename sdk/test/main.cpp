@@ -145,7 +145,12 @@ void createAndStartPeerNode() {
                 response = std::make_shared<std::vector<uint8_t>>(request.data);
                 break;
             case ElaphantContact::Listener::AcquireType::DidPropAppId:
+            {
+                std::string appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AA"
+                                    "A65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
+                response = std::make_shared<std::vector<uint8_t>>(appId.begin(), appId.end());
                 break;
+            }
             case ElaphantContact::Listener::AcquireType::DidAgentAuthHeader:
             {
                 std::string appid = "org.elastos.microservice.test";
