@@ -192,6 +192,9 @@ public class MainActivity extends Activity {
         } else if (item.getItemId() == R.id.clear_event) {
             mEvent.setText("");
             mEvent.computeScroll();
+        } else if (item.getItemId() == R.id.delete_friend) {
+            deleteFriend();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -393,6 +396,32 @@ public class MainActivity extends Activity {
             if (friendCode.isEmpty()) return;
 
             mConnector.addFriend(friendCode, "hello");
+        });
+        builder.create().show();
+    }
+
+    private void deleteFriend() {
+        if (mConnector == null) {
+            Toast.makeText(this, "please create connector first!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select a friend");
+        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        List<String> friends = mConnector.listFriendCode();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
+        assert friends != null;
+        arrayAdapter.addAll(friends);
+        builder.setAdapter(arrayAdapter, (dialog, which) -> {
+            mConnector.removeFriend(arrayAdapter.getItem(which));
+            dialog.dismiss();
         });
         builder.create().show();
     }
